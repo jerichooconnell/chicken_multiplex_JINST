@@ -3,6 +3,8 @@
 \usepackage{jinstpub} % for details on the use of the package,                           please
                      % see the JINST-author-manual
 \usepackage{xcolor,soul,framed} %,caption
+\usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{mdwmath}
 \usepackage{mdwtab}
 \usepackage{eqparbox}
@@ -11,6 +13,10 @@
 \usepackage{kantlipsum}     % for random text
 \usepackage{hyperref}
 \usepackage[export]{adjustbox}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{csvsimple}
+% longtable support required by pandoc >1.10
 
 \begin{document}
 %\bstctlcite{IEEEexample:BSTcontrol}
@@ -58,6 +64,14 @@ Similar application can be seen in airport scanning devices where people can be 
 \section{Materials and Methods}
 \label{sec:methods}
 
+\begin{figure}[b!]
+
+\includegraphics[width=\textwidth]{figures/flow_chart.png}
+
+\caption{A general overview of the workflow is seen, outlining the four general steps of the segmentation method.}
+\label{overview}
+\end{figure}
+
 \subsection{Data Aquistion}
 X-ray scans were performed on a PMMA phantom with 5 contaminates (steel, glass, plastic, polypropylene, and PFTE) as well as chicken flesh with various contaminates (bone, cartilage, fat, plastic, wood, glass, rock, steel, and aluminum).
 
@@ -71,48 +85,228 @@ In the case of the chicken flesh, each contaminate was able to fit in a phantom 
 
 Air scans were completed for each data acquisition and could then be processed using MATLAB (The Mathworks, Natick, MA) for image reconstruction and CNR calculations for each contaminate. During all scans the X-ray tube was using a cone beam operating at 1mA, 120 kV, with a 1mm focal spot. 
 
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{FullFigure.jpg}
+  \end{center}
+  \vspace{-20pt}
+  \caption{A) Shows an image of the lab after data was acquired with different components as labeled. B) Is a schematic of the lab with distances from source to detector labeled. C) The layout for the phantom used with sizes of contaminates as labeled.}
+  \vspace{-10pt}
+\end{wrapfigure}
+
+\subsection{Overview}
+
+Image segmentation is generally undertaken as a multistage process, a method like clustering being at the center of the workflow. The main steps required to analyze hyperspectral images include pre-processing of data, dimensional reduction, enhancement of spectral responses, and component detection or classification (Mahesh et al., 2015). These steps can also be seen in Figure \ref{overview} Using this as an analog for spectral imaging similar methods are applied in this study with the exception of enhancement of spectral response as the modelling the spectral response of the CZT detector is beyond the scope of this study.
+
+\subsubsection{Pre-processing of Data}
+
+After data aquisition, data pre-processing was performed using MATLAB 2017b (The MathWorks, Natick, USA). The images were first cropped to remove the highly non-uniform edge pixels in some parts of the detector. Dead pixels were then found manually and replaced with NaN values in the image. These NaN values were then interpolated to be the average of the surrounding eight pixels. The images were then smoothed using a two dimensional gaussian filter with a standard deviation of 0.5 as a preliminary method to reduce the noise in the image.
+
+One can see the six input images after the initial pre-processing in Figure \ref{demonstrating_bins}
+
 \begin{figure}[htbp]
 
-\includegraphics[width=\textwidth]{FullFigure.jpg}
+\includegraphics[width=\textwidth]{figures/poly_figure2.eps}
 
-\caption{A) Shows an image of the lab after data was acquired with different components as labeled. B) Is a schematic of the lab with distances from source to detector labeled. C) The layout for the phantom used with sizes of contaminates as labeled.}
-\label{figcali}
+\caption{The six channel images of PMMA embedded with poly-propylene are shown with different colormaps corresponding to their energy, red being lower energy while violet is higher energy. A histogram of the log intensity corresponding to each image is shown below the respective image.}
+\label{demonstrating_bins}
 \end{figure}
 
-\subsection{Image Reconstruction}
-\subsubsection{Spectral CT Image Reconstruction}
-Python was used to collect and analyze data, while MATLAB was used for data processing and image reconstruction. The detector counts/intensity for an air scan ($I_0$) was used to normalize the counts/intensity with the phantom ($I$) and produce projections by the equation: 
+\subsubsection{Dimensional Reduction}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{figures/PCAnone.png}
+  \end{center}
+  \vspace{-20pt}
+  \caption{The first two principle components of the data displayed as a scatter plot.}
+  \label{PCA}
+  \vspace{-10pt}
+\end{wrapfigure}
+
+Dimensional reduction methods were applied in this work to increase class seperation and reduce noise in the data, methods were implemented in Python (Python Software Foundation) using sci-kit learn \ref{Pedregosa}. The three dimensional reduction thought suitable for this task were principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF). A visualization of the effect of reducing the data to two dimensions can be seen in Figure \ref{}.
+
+\subsubsection{Principal Component Analysis}
+
+The first data reduction method employed in this study was Principle Component Analysis (PCA). First introduced in PCA does an eigenvalue decomposition of the covariance matrix, sorting the eigenvectors in terms of the magnitude of their eigenvalue one finds the directions of highest variance in the data. The data is then projected into a lower dimensional orthogonal space defined by the eigenvectors with the most variance, in this case the data was reduced to two dimensions. This method results in a loss of information, however this loss of information is usually relatively small and ideally the discarded dimensions in the data amount to noise in the data. PCA can be seen in Figure \ref{}. PCA is fast, linear and sees application in many domains.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{figures/ICAnone.png}
+  \end{center}
+  \vspace{-20pt}
+  \caption{The first two independent components of the data displayed as a scatter plot.}
+  \vspace{-10pt}
+  \label{ICA}
+\end{wrapfigure}
+
+\subsubsection{Independent Component Analysis}
+
+Typically not used for dimension reduction but for blind source seperation, independant component analysis (ICA) is used for seperating a mixed signal into its constituent signals and is often used in audio analysis but has seen use in hyperspectral imaging \ref{}. Using ICA we frame the segmentation of the two images as a decomposition in which the image is a weighted addition of two signals. Idealy in our case these signals would be the background material (PMMA) and the contaminant. A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explination of ICA can be found in appendix.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{figures/NMFnone.png}
+  \end{center}
+  \vspace{-20pt}
+  \caption{The first two non-negative factorization components of the data displayed as a scatter plot.}
+  \vspace{-10pt}
+  \label{NMF}
+\end{wrapfigure}
+
+\subsubsection{Non-negative Matrix Factorization}
+
+NMF assumes the Matrix $V$ is the product of the two matrices $W$ and $H$ such that : $V = WH$. 
+
+When multiplying matrices we the dimension of the factor matrices $W$ and $H$ may be much less that the product matrix. One can think of the two factor matrices as a feature matrix $W$ and a coefficient matrix $H$.
+
+Thus, if one can find matrices $W$ and $H$ that have fewer dimensions than $V$, one can reconstruct the matrix $V$ in the lower dimensional space defined by $W$. To find the matrices $W$ and $H$ numerically we try to minimize the error defined by:
+
+$ \min_{W,H} || V - WH ||_F,$ subject to $W \geq 0, H \geq 0.$
+
+This was done in Python using scikit-learn's NMF function using gradient descent. A demonstration of NMF on PTFE embedded in PMMA can be seen in Figure \ref{NMF}.
+
+\subsection{Clustering Methods}
+
+\subsubsection{K-means}
+
+The first clustering method implemented was k-means clustering. K-means was implemented using the k-means++ algorithm of (???). K-means was fit using a value for the number of clusters $k$ defined through the use of silhouette analysis. Different distance metrics were used, however none of the distance metrics tried improved performance over the squared euclidean distance, thus squared euclidean distance was used as the metric.
+
+K-means is a general purpose, fast and scalable clustering algorithm. Like many of the methods examined K-means requires the paramet $K$ which descibes the number of clusters in the data. This parameter can be hard to estimate in some cases. Methods for defining the parameter $K$ will be seen in the following metrics section.
+
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{figures/Kmeans.png}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{figures/GMM.png}
+    \end{subfigure}
+
+    \caption{Clustering Methods}\label{clustering_methods}
+\end{figure}
+
+\subsubsection{Gaussian Mixture Models}
+
+A gaussian mixture model (GMM) \ref{} can be used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. This can be useful in many applications where the data is sum of many random variables. In X-ray we see Poisson distributions which can be approximated by Gaussians. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution.
+
+General mixture models contain $N$ data points, each assumed to be a mixture of $K$ components, with all of these components assumed to be from the same family of distributions. In this case a Gaussian distribution. However these distributions are allowed to have different parameters, in this case different means and variances. The model also includes the identity of the mixture component to which each data point belongs. Also necessary is a weighting of each of the $K$ components and sets of parameters for each of the distributions, in this case means and variances for the Gaussians.
+
+In this study the number of components used was two and a further constraint was put on the variance of the gaussian mixture models to assure that they are spherical. This constraint will be discussed in more depth in the results and discussion section.
+
+\subsubsection{Other Clustering Methods}
+
+A number of other clustering methods were compared in an attempt to ascertain the optimal clustering method for spectral X-ray imaging. These additional methods and their parameters are summarized in table \ref{tab:1}.
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage[table,xcdraw]{xcolor}
+% If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
+\begin{table}[]
+\begin{tabular}{|l|l|l|l|}
+\hline
+
+Method name                                                            & Parameters                                                                                                                                         & Notes on Parameters                                                                                                                & Geometry (metric used)                                                      \\ \hline
+K-Means                                                                & number of clusters                                                                                                                                 & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ defined by silhouette\\ score\end{tabular}                                                    & \begin{tabular}[c]{@{}l@{}}Squared Euclidean\\ Distance\end{tabular}        \\ \hline
+Mean-shift                                                             & bandwidth                                                                                                                                          & \begin{tabular}[c]{@{}l@{}}estimated using\\ scikit-learn's bandwidth\\ estimator\end{tabular}                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ Distance\end{tabular}               \\ \hline
+Spectral clustering                                                    & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ eigensolver,\\ label assignment\end{tabular}                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ ARPACK \textbackslash{}ref\{\},\\ K-means\end{tabular}                                        & \begin{tabular}[c]{@{}l@{}}Nearest-neighbor \\ graph distance\end{tabular}  \\ \hline
+\begin{tabular}[c]{@{}l@{}}Ward hierarchical\\ clustering\end{tabular} & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ connectivity matrix\end{tabular}                                                                  & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ estimated as:\\ $1/2*(C+C')$\\ where C is the\\ K neighbors graph of\\ the data.\end{tabular} & \begin{tabular}[c]{@{}l@{}}Squared\\ euclidean\\ distance\end{tabular}      \\ \hline
+HDBSCAN                                                                & \begin{tabular}[c]{@{}l@{}}minimum samples,\\ minimum cluster size,\\ metric\end{tabular}                                                          & \begin{tabular}[c]{@{}l@{}}10,\\ 10,\\ minkowski\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}Distances between\\ nearest points\end{tabular}  \\ \hline
+Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical\end{tabular}                                                                        & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
+Birch                                                                  & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
+Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type,\\ weight concentration\\ prior type,\\ weight concentration\\ prior\end{tabular} & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical,\\ dirichlet process,\\ \\ 1/(number of clusters)\end{tabular}                      & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
+\end{tabular}
+\label{tab:1}
+\end{table}
+
+\subsubsection{V-measure}
+
+To evaluate the effectiveness of the clustering methods a ground truth was acquired for each radiographs. These ground truths were manually segmented with the help of a reference photograph of the material imaged. For clarity, the labels we give to the ground truth will be referred to as classes while the results of the clustering methods will be clusters.
+
+Evaluation compared these ground truth classes to clusters. When comparing the clusters to the ground truth two metrics were considered: The first metric is homogeneity. Homogeneity is satisfied if a cluster contains data points of a single class. We note, if using homogeneity as the sole evaluation metric, assigning all points to one class would attain a perfect evaluation score. Thus we introduce a second evaluation metric, completeness, satisfied if all data points of a single class are in a single cluster. 
+
+Formulating these metrics mathematically using the method described by Rosenberg and Hirschberg using combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness.
+
 \begin{equation}
-    p = -\ln(I/I_0)
+v = 2 \cdot \frac{h \cdot c}{h + c}
 \end{equation}
-These projections were then plotted to show the variance of attenuation through the phantom for each contaminate as imaged in Figure 2.A). 
 
-\begin{figure}[htbp]
-\includegraphics[width=\textwidth]{PTFE(Left).jpg}
-\caption{A) CZT images for PFTE contaminate with CNR's calculated for each bin based on the ROI's as show in the SUM bin. B) CNR values for each bin with 99\% Confidence interval}
-\label{figcali}
-\end{figure}
+With values ranging from assigning each point to a cluster at 0 to perfect clustering at 1. A mathematical treatment of V-measure is found in the appendix.
 
+\subsubsection{Akaike Information Criterion}
 
-\subsubsection{Contrast-to-Noise Ratio}
-The Contrast to Noise Ratio (CNR) and a 99\% Confidence Interval was calculated for each energy bin based on ROI's selected by the user. The CNR's were calculated by taking the difference between the mean of each ROI $\mu_{\mathrm{background}}$ and $\mu_{\mathrm{phantom}}$ divided by the standard deviation in the phantom $\sigma_{\mathrm{phantom}}$, expressed by the equation: 
+The Akaike information criterion (AIC) is an estimator of the relative quality of a statistical model for a given data set. Unlike a V-measure, AIC could not compare different clustering methods as most clustering models discussed don't include statistical models.
 
-\begin{align}
-    \mathrm{CNR} = \frac{\mu_{\mathrm{background}} - \mu_{\mathrm{phantom}}}{\sigma_{\mathrm{phantom}}} \\
-\end{align}
+AIC is a function of the goodness of fit of a statistical model combined with a penalty for overfitting. In this case AIC tested the goodness of fit of the GMM's Gaussian, with a penalty proportional to the number of clusters. Used this way, AIC determines the optimal number of clusters.
 
-A confidence interval was then produced using MATLAB's bootstrp function and is demonstrated in Figure 2.B). The selection of the ROI by the user allowed variance in  the CNR's when calculated, this is why a confidence interval was determine for each energy bin. 
+Specifically the maximum likelihood found by the GMMs EM algorithm, $\hat L$, and the number of parameters $k$ were used as:
 
-\section{Results}
-A CNR value of 4 or greater is necessary to effectively distinguish between a contaminate object and the surround background for a CNN. In the case of steel and glass it is evident that the CNR is much larger then 4 for nearly all images other then a 1mm diameter ball of glass within the 36mm of PMMA. The plastic/blue belt CNR was slightly above 4 for the 3rd and 4th energy bin in all images of then the 6mm long piece within the 36mm of PMMA. Polypropylene was effectively imaged with CNR's above 4 in at least 2 energy bins in all cases, CNR was largest in the 4th energy bin and was slightly less in the 3rd bin. PFTE images produced distinguishable CNR ratio's in half of the images taken, with the 6mm length being visible in both 18mm and 36mm of PMMA, and the 4mm being visible in 18mm but not 36mm, and not be distinguishable in either case for the 2mm length rod. The 1st energy bin (16-33 keV) had the largest CNR value in all but one case, but seems to be the best energy range to visualize PFTE in. 
+\begin{equation}
+    AIC \, = \, 2k - 2\ln(\hat L)
+\end{equation}
+
+For a given model the lowest AIC denotes the best fit.
+
+\subsubsection{Interpolating Bayesian Gaussian Mixture Model}
+
+Initial clustering results contained many pixels misclassified due to poor detector response, noise in the data and partial volume effects. To combat these effects a new method was proposed: A GMM was first trained on the data as described above. A pairwise distance matrix to the gaussians means was calculated for each point clustered to the gaussian. These points were then sorted. Points greater than \%90 of the maximum were then identified for each cluster and interpolated spacialy using biharmonic interpolation \ref{}. The GMM was retrained using as a starting point the parameters from the previous round of training. The process was then repeated. The AIC of the model was monitored and the process was stopped when AIC increased over an iteration. In practice this amounted to five to ten iterations. A result of this method can be seen in Figure \ref{}.
 
 \section{Discussion and Conclusions}
 
- \section*{Acknowledgments}
+\section*{Acknowledgments}
 
 % or
 \appendix{}
 \section{Git Repository}
+
+To give a metric to describe the disorder in our clustering result we use the Shannon entropy of the classes given the clustering assignment $H(C|K)$ and the entropy of the classes  $H(C)$.
+
+\begin{equation}
+H(C|K) = - \sum_{c=1}^{|C|} \sum_{k=1}^{|K|} \frac{n_{c,k}}{n}
+\cdot \log\left(\frac{n_{c,k}}{n_k}\right)
+\end{equation}
+
+\begin{equation}
+H(C) = - \sum_{c=1}^{|C|} \frac{n_c}{n} \cdot \log\left(\frac{n_c}{n}\right)
+\end{equation}
+
+with $n$ the total number of data points, $n_c$ and $n_k$ the number of data points belonging to class $c$ and cluster $k$ respectively, and $n_{c,k}$ as the number of data points from class $c$ assigned to cluster $k$.
+
+Rosenberg and Hirschberg then define the homogeneity $h$ and completeness $c$ as:
+
+% \begin{equation}
+    
+% h = 1 - \frac{H(C|K)}{H(C)}
+
+% c = 1 - \frac{H(K|C)}{H(K)}
+
+% \end{equation}
+
+In this study, methods were evaluated according to a combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness.
+
+\begin{equation}
+v = 2 \cdot \frac{h \cdot c}{h + c}
+\end{equation}
+
+The components $x_i$ of the images with 5 bins $\boldsymbol{x}=(x_1,\ldots,x_5)^T$ are seen to be a sum of the independent components $s_k$, $k=1,\ldots,5$:
+
+$x_i = a_{i,1} s_1 + \cdots + a_{i,k} s_k + \cdots + a_{i,5} s_5$
+
+where $a_{i,k}$ are the mixing weights.
+
+Or in matrix form as $\boldsymbol{x}=\sum_{k=1}^{5} s_k \boldsymbol{a}_k$, where our image vectors $\boldsymbol{x}$ are represented by the basis vectors $\boldsymbol{a}_k=(\boldsymbol{a}_{1,k},\ldots,\boldsymbol{a}_{m,k})^T$. The basis vectors $\boldsymbol{a}_k$ form the columns of the mixing matrix $\boldsymbol{A}=(\boldsymbol{a}_1,\ldots,\boldsymbol{a}_5)$.
+
+Putting all this together we have the matrix equation $\boldsymbol{x}=\boldsymbol{A} \boldsymbol{s}$, where $\boldsymbol{s}=(s_1,\ldots,s_5)^T$.
+
+Given our images $\boldsymbol{x}_1,\ldots,\boldsymbol{x}_N$ of the random vector $\boldsymbol{x}$, the task is to estimate both the mixing matrix $\boldsymbol{A}$ and the sources $\boldsymbol{s}$. This is done by adaptively calculating the $\boldsymbol{w}$ vectors and setting up a cost function which maximizes the non-gaussianity of the calculated $s_k = \boldsymbol{w}^T \boldsymbol{x}$. In this paper we use the maximum likelihood estimate (MLE) algorithm for finding the unmixing matrix $W$. 
+
 
 
 
@@ -466,3 +660,20 @@ A CNR value of 4 or greater is necessary to effectively distinguish between a co
 
 % \end{thebibliography}
 % \end{document}
+% \begin{figure}
+%     \centering
+%     \begin{subfigure}[b]{0.3\textwidth}
+%         \includegraphics[width=\textwidth]{figures/PCAnone.png}
+%     \end{subfigure}
+%     ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+%       %(or a blank line to force the subfigure onto a new line)
+%     \begin{subfigure}[b]{0.3\textwidth}
+%         \includegraphics[width=\textwidth]{figures/ICAnone.png}
+%     \end{subfigure}
+%     ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+%     %(or a blank line to force the subfigure onto a new line)
+%     \begin{subfigure}[b]{0.3\textwidth}
+%         \includegraphics[width=\textwidth]{figures/NMFnone.png}
+%     \end{subfigure}
+%     \caption{Pictures of animals}\label{dm_methods}
+% \end{figure}
