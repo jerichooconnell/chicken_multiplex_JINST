@@ -13,9 +13,9 @@
 \usepackage{kantlipsum}     % for random text
 \usepackage{hyperref}
 \usepackage[export]{adjustbox}
-\usepackage{longtable}
-\usepackage{booktabs}
-\usepackage{csvsimple}
+% \usepackage{longtable}
+% \usepackage{booktabs}
+% \usepackage{csvsimple}
 % longtable support required by pandoc >1.10
 
 \begin{document}
@@ -127,11 +127,11 @@ One can see the six input images after the initial pre-processing in Figure \ref
   \vspace{-10pt}
 \end{wrapfigure}
 
-Dimensional reduction methods were applied in this work to increase class seperation and reduce noise in the data, methods were implemented in Python (Python Software Foundation) using sci-kit learn \ref{Pedregosa}. The three dimensional reduction thought suitable for this task were principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF). A visualization of the effect of reducing the data to two dimensions can be seen in Figure \ref{}.
+Dimensional reduction methods were applied in this work to increase class seperation and reduce noise in the data, methods were implemented in Python (Python Software Foundation) using sci-kit learn ??ref{Pedregosa}. The three dimensional reduction thought suitable for this task were principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF). A visualization of the effect of reducing the data to two dimensions can be seen in Figure ??ref??.
 
 \subsubsection{Principal Component Analysis}
 
-The first data reduction method employed in this study was Principle Component Analysis (PCA). First introduced in PCA does an eigenvalue decomposition of the covariance matrix, sorting the eigenvectors in terms of the magnitude of their eigenvalue one finds the directions of highest variance in the data. The data is then projected into a lower dimensional orthogonal space defined by the eigenvectors with the most variance, in this case the data was reduced to two dimensions. This method results in a loss of information, however this loss of information is usually relatively small and ideally the discarded dimensions in the data amount to noise in the data. PCA can be seen in Figure \ref{}. PCA is fast, linear and sees application in many domains.
+The first data reduction method employed in this study was Principle Component Analysis (PCA). First introduced in PCA does an eigenvalue decomposition of the covariance matrix, sorting the eigenvectors in terms of the magnitude of their eigenvalue one finds the directions of highest variance in the data. The data is then projected into a lower dimensional orthogonal space defined by the eigenvectors with the most variance, in this case the data was reduced to two dimensions. This method results in a loss of information, however this loss of information is usually relatively small and ideally the discarded dimensions in the data amount to noise in the data. PCA can be seen in Figure ??ref??. PCA is fast, linear and sees application in many domains.
 
 \begin{wrapfigure}{r}{0.5\textwidth}
   \vspace{-20pt}
@@ -146,9 +146,9 @@ The first data reduction method employed in this study was Principle Component A
 
 \subsubsection{Independent Component Analysis}
 
-Typically not used for dimension reduction but for blind source seperation, independant component analysis (ICA) is used for seperating a mixed signal into its constituent signals and is often used in audio analysis but has seen use in hyperspectral imaging \ref{}. Using ICA we frame the segmentation of the two images as a decomposition in which the image is a weighted addition of two signals. Idealy in our case these signals would be the background material (PMMA) and the contaminant. A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explination of ICA can be found in appendix.
+Typically not used for dimension reduction but for blind source seperation, independant component analysis (ICA) is used for seperating a mixed signal into its constituent signals and is often used in audio analysis but has seen use in hyperspectral imaging ??ref??. Using ICA we frame the segmentation of the two images as a decomposition in which the image is a weighted addition of two signals. Idealy in our case these signals would be the background material (PMMA) and the contaminant. A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explination of ICA can be found in appendix.
 
-\begin{wrapfigure}{r}{0.5\textwidth}
+\begin{wrapfigure}{r}{0.48\textwidth}
   \vspace{-20pt}
   \begin{center}
     \includegraphics[width=0.48\textwidth]{figures/NMFnone.png}
@@ -195,7 +195,7 @@ K-means is a general purpose, fast and scalable clustering algorithm. Like many 
 
 \subsubsection{Gaussian Mixture Models}
 
-A gaussian mixture model (GMM) \ref{} can be used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. This can be useful in many applications where the data is sum of many random variables. In X-ray we see Poisson distributions which can be approximated by Gaussians. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution.
+A gaussian mixture model (GMM) ??ref?? can be used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. This can be useful in many applications where the data is sum of many random variables. In X-ray we see Poisson distributions which can be approximated by Gaussians. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution.
 
 General mixture models contain $N$ data points, each assumed to be a mixture of $K$ components, with all of these components assumed to be from the same family of distributions. In this case a Gaussian distribution. However these distributions are allowed to have different parameters, in this case different means and variances. The model also includes the identity of the mixture component to which each data point belongs. Also necessary is a weighting of each of the $K$ components and sets of parameters for each of the distributions, in this case means and variances for the Gaussians.
 
@@ -203,13 +203,13 @@ In this study the number of components used was two and a further constraint was
 
 \subsubsection{Other Clustering Methods}
 
-A number of other clustering methods were compared in an attempt to ascertain the optimal clustering method for spectral X-ray imaging. These additional methods and their parameters are summarized in table \ref{tab:1}.
+A number of other clustering methods were compared in an attempt to ascertain the optimal clustering method for spectral X-ray imaging. These additional methods and their parameters are summarized in table ??ref{tab1}.
 
 
 % Please add the following required packages to your document preamble:
 % \usepackage[table,xcdraw]{xcolor}
 % If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
-\begin{table}[]
+\begin{table}[htbp]
 \begin{tabular}{|l|l|l|l|}
 \hline
 
@@ -223,9 +223,10 @@ Gaussian Mixture                                                       & \begin{
 Birch                                                                  & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
 Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type,\\ weight concentration\\ prior type,\\ weight concentration\\ prior\end{tabular} & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical,\\ dirichlet process,\\ \\ 1/(number of clusters)\end{tabular}                      & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
 \end{tabular}
-\label{tab:1}
+\label{tab1}
 \end{table}
 
+\subsection{Metrics}
 \subsubsection{V-measure}
 
 To evaluate the effectiveness of the clustering methods a ground truth was acquired for each radiographs. These ground truths were manually segmented with the help of a reference photograph of the material imaged. For clarity, the labels we give to the ground truth will be referred to as classes while the results of the clustering methods will be clusters.
@@ -256,9 +257,53 @@ For a given model the lowest AIC denotes the best fit.
 
 \subsubsection{Interpolating Bayesian Gaussian Mixture Model}
 
-Initial clustering results contained many pixels misclassified due to poor detector response, noise in the data and partial volume effects. To combat these effects a new method was proposed: A GMM was first trained on the data as described above. A pairwise distance matrix to the gaussians means was calculated for each point clustered to the gaussian. These points were then sorted. Points greater than \%90 of the maximum were then identified for each cluster and interpolated spacialy using biharmonic interpolation \ref{}. The GMM was retrained using as a starting point the parameters from the previous round of training. The process was then repeated. The AIC of the model was monitored and the process was stopped when AIC increased over an iteration. In practice this amounted to five to ten iterations. A result of this method can be seen in Figure \ref{}.
+Initial clustering results contained many pixels misclassified due to poor detector response, noise in the data and partial volume effects. To combat these effects a new method was proposed: A GMM was first trained on the data as described above. The distance to the gaussians center was calculated for each point to the gaussian it is clustered to. These points were then sorted. Points greater than \%90 of the maximum were then identified for each cluster and interpolated spacialy using biharmonic interpolation ??ref??. The GMM was retrained using as a starting point the parameters from the previous round of training. The process was then repeated. The AIC of the model was monitored and the process was stopped when AIC increased over an iteration. In practice this amounted to five to ten iterations. A result of this method can be seen in Figure ??ref??.
 
-\section{Discussion and Conclusions}
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figures/PCAgoodbefore.png}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figures/PCAgoodafter.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figures/algo_flow.png}
+    \end{subfigure}
+    \caption{Clustering Methods}
+    \label{iterative_method}
+\end{figure}
+
+\subsubsection{Post-processing}
+
+The aim of this work in it's entirety is to fully automate the workflow of segmentation. Thus on top of the clustering it is necessary to introduce an identification layer. This layer will take the segmented image after the clustering and identify if there are two materials present or one. To do this the following framework was developed:
+
+First a uniform filter is applied to the image so that the binary data becomes continuous. This acts to reduce the score of single pixels that have been identified. Secondly, we apply a threshold to the image that is slightly greater than zero in this case 0.2. Next, we fill all of the binary holes in the image to make candidates for segmentation more uniform. A bounding box is then created around all of the nonzero elements of the image and overlaid on the image as the final output.
+
+
+\section{Results and Discussion}
+
+\subsection{Dimensional Reduction Results}
+
+Figure ??ref?? shows the V-measures for the different dimensional reduction methods averaged over all of the materials for each clustering method individually. Each dimensional reduction method reduced the dimensionality from six to two in each case. For comparison the results without dimensional reduction are displayed.
+
+Overall PCA had the best results over all clustering methods. It was on average \% better than ICA and \% better than NMF. In the best case for each PCA had a V-measure of ## and was \% better than ICA and \% better than NMF.
+
+\subsection{Clustering Results}
+
+Figure ??ref?? shows the results of the clustering methods using PCA with two principal components. Overall the GMMs resulted in the best clustering V-measures. Spectral clustering resulted in comparable V-measure in some cases.
+
+\subsubsection{Comparison to Dual and Single Energy}
+
+A dual energy image was created by summing over the first and last three bins of the image while a single energy image was created by summing over all of the bins. The clustering methods were applied to the two images and compared to the spectral image with PCA. Results can be seen in Figure ??ref??.
+
+Overall spectral imaging was seen to be marginally better that dual and single energy imaging averaged over all of materials. Spectral was \% better than dual energy imageing and \% better than single energy imaging.
+
+Results differed significantly when looking at the soft tissue and hard tissue segmentations. Hard tissues were considered to be steel and glass while soft tissues were considered to be polypropylene, PTFE and bluebelt.
+
+
 
 \section*{Acknowledgments}
 
@@ -530,7 +575,7 @@ Given our images $\boldsymbol{x}_1,\ldots,\boldsymbol{x}_N$ of the random vector
 % \label{eq:f}
 % CNR = \frac{|I^m_{ROI} - I^m_{H_2O}|}{\sqrt{\sigma^2_{ROI} + \sigma^2_{H_2O}}}
 % \end{equation}
-% The CNR was bootstrapped to the 95\% confidence interval which is shown as a band in figure \ref{}
+% The CNR was bootstrapped to the 95\% confidence interval which is shown as a band in figure ??ref??
 
 % If you want some equations without the tag (number), please use the available
 % starred-environments. For example:
