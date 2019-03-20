@@ -111,7 +111,7 @@ Air scans were completed for each data acquisition and could then be processed u
 \subsection{Image Segmentation}
 \subsubsection{Overview}
 
-Image segmentation is undertaken as a multistage process. A problem encountered is that regular X-ray imaging workflows are not designed to accommodate five or more dimensional spectral images. Here we borrow from the neighboring field of hyperspectral imaging, as images are multidimensional and clustering segmentation has been widely applied in the field \cite{Murphy2018UnsupervisedDiffusion,Gillis2012HyperspectralGraphs,Noe2001PartialClustering}. Mahesh et al. state that main steps in hyperspectral images segmentation include pre-processing of data, dimensional reduction, enhancement of spectral responses, and component detection or classification \cite{mahesh}. These steps can also be seen in Figure \ref{overview}. Using this as an analog for spectral imaging similar methods are applied. An exception being the enhancement of spectral response as the modelling of the spectral response of the CZT detector is beyond the scope of this study.
+Image segmentation is undertaken as a multistage process. A problem encountered is that regular X-ray imaging workflows are not designed to accommodate five or more dimensional spectral images. Here we borrow from the neighboring field of hyperspectral imaging, as images are multidimensional and clustering segmentation has been widely applied in the field \cite{Murphy2018UnsupervisedDiffusion,Gillis2012HyperspectralGraphs,Noe2001PartialClustering}. Mahesh et al. state that main steps in hyperspectral images segmentation include pre-processing of data, dimensional reduction, enhancement of spectral responses, and component detection or classification \cite{Mahesh2015HyperspectralMaterials}. These steps can also be seen in Figure \ref{overview}. Using this as an analog for spectral imaging similar methods are applied. An exception being the enhancement of spectral response as the modelling of the spectral response of the CZT detector is beyond the scope of this study.
 
 \subsubsection{Pre-processing of Data}
 
@@ -140,11 +140,11 @@ One can see the six input images after the initial pre-processing in Figure \ref
   
 \end{wrapfigure}
 
-Dimensional reduction methods were applied in this work to increase class separation and reduce noise in the data, methods were implemented in Python (Python Software Foundation) using sci-kit learn \cite{Pedregosa}. The three dimensional reduction thought suitable for this task were principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF). A visualization of the effect of reducing the data to two dimensions can be seen in Figures \ref{PCA},\ref{ICA}, and \ref{NMF}.
+Dimensional reduction methods were applied in this work to increase class separation and reduce noise in the data, methods were implemented in Python (Python Software Foundation) using sci-kit learn \cite{Pedregosa2011Scikit-learn:Python}. The three dimensional reduction thought suitable for this task were principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF). A visualization of the effect of reducing the data to two dimensions can be seen in Figures \ref{PCA},\ref{ICA}, and \ref{NMF}.
 
 \subsubsection{Principal Component Analysis}
 
-The first data reduction method employed in this study was Principle Component Analysis (PCA) \cite{Jolliffe}. PCA decomposed the covariance matrix into eigenvalues and eigenvectors, sorting the eigenvectors in terms of the magnitude of their eigenvalue one finds the directions of highest variance in the data. The data is then projected into a lower dimensional orthogonal space defined by the eigenvectors with the most variance. This method results in a loss of information, however this loss of information is usually relatively small and ideally the discarded dimensions in the data amount to noise. PCA can be seen in Figure \ref{PCA}. PCA is fast, linear and sees application in many domains. 
+The first data reduction method employed in this study was Principle Component Analysis (PCA) \cite{Jolliffe2016PrincipalDevelopments.}. PCA decomposed the covariance matrix into eigenvalues and eigenvectors, sorting the eigenvectors in terms of the magnitude of their eigenvalue one finds the directions of highest variance in the data. The data is then projected into a lower dimensional orthogonal space defined by the eigenvectors with the most variance. This method results in a loss of information, however this loss of information is usually relatively small and ideally the discarded dimensions in the data amount to noise. PCA can be seen in Figure \ref{PCA}. PCA is fast, linear and sees application in many domains. 
 
 \begin{wrapfigure}{R}{0.5\textwidth}
   
@@ -159,7 +159,7 @@ The first data reduction method employed in this study was Principle Component A
 
 \subsubsection{Independent Component Analysis}
 
-Typically not used for dimension reduction but for blind source seperation, independant component analysis (ICA) is used for seperating a mixed signal into its constituent signals and is often used in audio analysis but has seen use in hyperspectral imaging \cite{Villa}. Using ICA we frame the segmentation of the two images as a decomposition in which the image is a weighted addition of two signals. Idealy in our case these signals would be the background material (PMMA) and the contaminant. A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explination of ICA can be found in appendix. The algorithm used for ICA in this work was the FastICA \cite{Hyv} algorithm implemented in scikit learn.
+Typically not used for dimension reduction but for blind source seperation, independant component analysis (ICA) is used for seperating a mixed signal into its constituent signals and is often used in audio analysis but has seen use in hyperspectral imaging \cite{Villa2009OnAnalysis}. Using ICA we frame the segmentation of the two images as a decomposition in which the image is a weighted addition of two signals. Idealy in our case these signals would be the background material (PMMA) and the contaminant. A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explination of ICA can be found in appendix. The algorithm used for ICA in this work was the FastICA \cite{Hyvarinen2000IndependentApplications} algorithm implemented in scikit learn.
 
 \begin{wrapfigure}{R}{0.48\textwidth}
   
@@ -181,8 +181,9 @@ When multiplying matrices the dimension of the factor matrices $W$ and $H$ may b
 Thus, if one can find matrices $W$ and $H$ that have fewer dimensions than $V$, one can reconstruct the matrix $V$ in the lower dimensional space defined by $W$. To find the matrices $W$ and $H$ numerically we try to minimize the error defined by:
 
 \begin{equation}
-\min_{W,H} || V - WH ||_F,$ subject to $W \geq 0, H \geq 0
+\min_{W,H} || V - WH ||_F, subject to W \geq 0, H \geq 0
 \end{equation}
+
 This was done in using scikit-learn's NMF function using gradient descent. A demonstration of NMF on PTFE embedded in PMMA can be seen in Figure \ref{NMF}.
 
 \subsection{Clustering Methods}
@@ -207,7 +208,7 @@ The first clustering method implemented was k-means clustering. K-means was impl
 
 \subsubsection{Gaussian Mixture Models}
 
-A gaussian mixture model (GMM) can be used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. This can be useful in many applications where the data is sum of many random variables. In X-ray we see Poisson distributions which can be approximated by Gaussians. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution. A more complete overview of GMMs can be found at \cite{Ivo}.
+A gaussian mixture model (GMM) can be used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. This can be useful in many applications where the data is sum of many random variables. In X-ray we see Poisson distributions which can be approximated by Gaussians. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution. A more complete overview of GMMs can be found at \cite{DinovExpectationTutorial}.
 
 General mixture models contain $N$ data points, each assumed to be a mixture of $K$ components, with all of these components assumed to be from the same family of distributions. In this case a Gaussian distribution. However these distributions are allowed to have different parameters, in this case different means and variances. The model also includes the identity of the mixture component to which each data point belongs. Also necessary is a weighting of each of the $K$ components and sets of parameters for each of the distributions, in this case means and variances for the Gaussians.
 
@@ -226,13 +227,13 @@ A number of other clustering methods were compared. These additional methods and
 \hline
 
 Method name                                                            & Parameters                                                                                                                                         & Notes on Parameters                                                                                                                & Geometry (metric used)                                                      \\ \hline
-K-Means                                                                & number of clusters                                                                                                                                 & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ defined by silhouette\\ score\cite{Rous}\end{tabular}                                                    & \begin{tabular}[c]{@{}l@{}}Squared Euclidean\\ Distance\end{tabular}        \\ \hline
-Mean-shift \cite{Fukunaga}                                                             & bandwidth                                                                                                                                          & \begin{tabular}[c]{@{}l@{}}estimated using\\ scikit-learn's bandwidth\\ estimator\end{tabular}                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ Distance\end{tabular}               \\ \hline
-Spectral clustering                                                  & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ eigensolver,\\ label assignment\end{tabular}                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ ARPACK \cite{Lehoucq1998ARPACKMethods}\{\},\\ K-means\end{tabular}                                        & \begin{tabular}[c]{@{}l@{}}Nearest-neighbor \\ graph distance\end{tabular}  \\ \hline
-\begin{tabular}[c]{@{}l@{}}Ward hierarchical\\ clustering \cite{Ward}\end{tabular} & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ connectivity matrix\end{tabular}                                                                  & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ estimated as:\\ $1/2*(C+C')$\\ where C is the\\ K neighbors graph of\\ the data.\end{tabular} & \begin{tabular}[c]{@{}l@{}}Squared\\ euclidean\\ distance\end{tabular}      \\ \hline
-HDBSCAN \cite{campello}                                                                & \begin{tabular}[c]{@{}l@{}}minimum samples,\\ minimum cluster size,\\ metric\end{tabular}                                                          & \begin{tabular}[c]{@{}l@{}}10,\\ 10,\\ minkowski\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}Distances between\\ nearest points\end{tabular}  \\ \hline
+K-Means                                                                & number of clusters                                                                                                                                 & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ defined by silhouette\\ score\cite{Rousseeuw1987Silhouettes:Analysis}\end{tabular}                                                    & \begin{tabular}[c]{@{}l@{}}Squared Euclidean\\ Distance\end{tabular}        \\ \hline
+Mean-shift \cite{Fukunaga1975TheRecognition}                                                             & bandwidth                                                                                                                                          & \begin{tabular}[c]{@{}l@{}}estimated using\\ scikit-learn's bandwidth\\ estimator\end{tabular}                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ Distance\end{tabular}               \\ \hline
+Spectral clustering                                                  & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ eigensolver,\\ label assignment\end{tabular}                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ ARPACK \cite{Lehoucq1998ARPACKMethods},\\ K-means\end{tabular}                                        & \begin{tabular}[c]{@{}l@{}}Nearest-neighbor \\ graph distance\end{tabular}  \\ \hline
+\begin{tabular}[c]{@{}l@{}}Ward hierarchical\\ clustering \cite{Ward1963HierarchicalFunction}\end{tabular} & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ connectivity matrix\end{tabular}                                                                  & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ estimated as:\\ $1/2*(C+C')$\\ where C is the\\ K neighbors graph of\\ the data.\end{tabular} & \begin{tabular}[c]{@{}l@{}}Squared\\ euclidean\\ distance\end{tabular}      \\ \hline
+HDBSCAN \cite{Campello2015HierarchicalDetection}                                                                & \begin{tabular}[c]{@{}l@{}}minimum samples,\\ minimum cluster size,\\ metric\end{tabular}                                                          & \begin{tabular}[c]{@{}l@{}}10,\\ 10,\\ minkowski\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}Distances between\\ nearest points\end{tabular}  \\ \hline
 Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical\end{tabular}                                                                        & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
-Birh \cite{Zhang}                                               & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
+Birh \cite{Zhang1996BIRCH}                                               & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
 Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type,\\ weight concentration\\ prior type,\\ weight concentration\\ prior\end{tabular} & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical,\\ dirichlet process,\\ \\ 1/(number of clusters)\end{tabular}                      & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
 \end{tabular}
 \label{tab1}
@@ -245,7 +246,7 @@ To evaluate the effectiveness of the clustering methods a ground truth was acqui
 
 Evaluation compared these ground truth classes to clusters. When comparing the clusters to the ground truth two metrics were considered: The first metric is homogeneity. Homogeneity is satisfied if a cluster contains data points of a single class. We note, if using homogeneity as the sole evaluation metric, assigning all points to one class would attain a perfect evaluation score. Thus we introduce a second evaluation metric, completeness, satisfied if all data points of a single class are in a single cluster. 
 
-Formulating these metrics mathematically using the method described by Rosenberg and Hirschberg \cite{Rosenberg} using combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness.
+Formulating these metrics mathematically using the method described by Rosenberg and Hirschberg \cite{Rosenberg2007V-Measure:Measure} using combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness.
 
 \begin{equation}
 v = 2 \cdot \frac{h \cdot c}{h + c}
@@ -255,7 +256,7 @@ With values ranging from assigning each point to a cluster at 0 to perfect clust
 
 \subsubsection{Akaike Information Criterion}
 
-The Akaike information criterion (AIC) \cite{Akaike} is an estimator of the relative quality of a statistical model for a given data set. Unlike a V-measure, AIC could not compare different clustering methods as most clustering models discussed don't include statistical models.
+The Akaike information criterion (AIC) \cite{Akaike1998InformationPrinciple} is an estimator of the relative quality of a statistical model for a given data set. Unlike a V-measure, AIC could not compare different clustering methods as most clustering models discussed don't include statistical models.
 
 AIC is a function of the goodness of fit of a statistical model combined with a penalty for overfitting. In this work AIC tested the goodness of fit of the GMM's Gaussian, with a penalty proportional to the number of clusters. Used this way, AIC determines the optimal number of clusters.
 
@@ -270,17 +271,17 @@ For a given model the lowest AIC denotes the best fit. More specifically an "elb
 \subsubsection{Interpolating Bayesian Gaussian Mixture Model}
 
 %Initial clustering results contained many pixels misclassified due to poor detector response, noise in the data and partial volume effects. To combat these effects a
-Additional to the previous methods, a new method was also proposed the workflow is seen in Figure \ref{iterative_method}: A GMM was first trained on the data as described above. Within each cluster the distance from all the points to the center was calculated. Points greater than \%90 of the maximum were then identified as potential outliers. Each potential outlier was then interpolated spacialy using biharmonic interpolation \cite{damelin}. The GMM was then retrained using starting point defined by the end state of the previous iteration. The process was then repeated. The AIC of the model was monitored and the process was stopped when the AIC started to increase. In practice this amounted to between five and ten iterations. A result of this method can be seen in Figure \ref{iterative_method}.
+Additional to the previous methods, a new method was also proposed the workflow is seen in Figure \ref{iterative_method}: A GMM was first trained on the data as described above. Within each cluster the distance from all the points to the center was calculated. Points greater than \%90 of the maximum were then identified as potential outliers. Each potential outlier was then interpolated spacialy using biharmonic interpolation \cite{Damelin2017OnAspects}. The GMM was then retrained using starting point defined by the end state of the previous iteration. The process was then repeated. The AIC of the model was monitored and the process was stopped when the AIC started to increase. In practice this amounted to between five and ten iterations. A result of this method can be seen in Figure \ref{iterative_method}.
 
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{figures/PCAgoodbefore.png}
+        \includegraphics[width=\textwidth]{figures/PCAsphericalbefore.png}
     \end{subfigure}
     ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
       %(or a blank line to force the subfigure onto a new line)
     \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{figures/PCAgoodafter.png}
+        \includegraphics[width=\textwidth]{figures/PCAsphericalafter.png}
     \end{subfigure}
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{figures/algo_flow.png}
@@ -325,7 +326,7 @@ Figure \ref{results:hard_soft} a) shows the results of the clustering methods us
 \begin{figure}[b!]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{figures/all_comparison.png}
+        \includegraphics[width=\textwidth]{figures/energy_comparison.png}
     \end{subfigure}
     ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
       %(or a blank line to force the subfigure onto a new line)
@@ -333,7 +334,7 @@ Figure \ref{results:hard_soft} a) shows the results of the clustering methods us
         \includegraphics[width=\textwidth]{figures/hard.png}
     \end{subfigure}
     \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{figures/soft_comparison.png}
+        \includegraphics[width=\textwidth]{figures/soft.png}
     \end{subfigure}
     \caption{Clustering Methods}
     \label{results:hard_soft}
@@ -374,6 +375,8 @@ In X-ray image segmentation Otsu's method is used often for image segmentation. 
 %--------------------------------------------------------------------------------%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Discussion %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------------%
+
+\section{Discussion}
 
 Machine learning has taken medical physics by storm. In recent years much work has been done implementing deep learning image segmentation. Deep learning implementations include considerable downfalls. It is known that these methods are only as good as their training data. To implement a successful deep learning model a large high quality dataset is needed. If the training data is does not completely cover the range of input in question it will behave erroneously.
 
