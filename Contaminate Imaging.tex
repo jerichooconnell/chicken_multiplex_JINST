@@ -127,10 +127,10 @@ After data aquisition, data pre-processing was performed using MATLAB 2017b (The
 
 \subsubsection{Dimensional Reduction}
 
-\begin{wrapfigure}{R}{0.33\textwidth}
+\begin{wrapfigure}{R}{0.5\textwidth}
   
   \begin{center}
-    \includegraphics[width=0.33\textwidth]{figures/PCAnone.png}
+    \includegraphics[width=0.48\textwidth]{figures/PCAnone.png}
   \end{center}
   
   \caption{The first two principle components of the PTFE image displayed as a scatter plot.}
@@ -159,16 +159,16 @@ The first data reduction method employed in this study was Principle Component A
 
 Used for blind source seperation in time series analysis, independant component analysis (ICA) separates a mixed signal into its constituent signals. ICA is also used in hyperspectral imaging \cite{Villa2009OnAnalysis}. Using ICA we frame the segmentation of the two images as a decomposition problem in which the image is a weighted addition of two signals. Idealy these signals would be the background material (PMMA) and the material of interest (eg. PTFE). A demonstration of using ICA on PTFE embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explanation of ICA can be found in appendix. The algorithm used for ICA in this work was the FastICA \cite{Hyvarinen2000IndependentApplications} algorithm implemented in sci-kit learn.
 
-\begin{wrapfigure}{R}{0.33\textwidth}
+\begin{wrapfigure}{R}{0.5\textwidth}
   \begin{center}
-    \includegraphics[width=0.33\textwidth]{figures/ICAnone.png}
+    \includegraphics[width=0.48\textwidth]{figures/ICAnone.png}
   \end{center}
   
   \caption{The first two independent components of the PTFE image displayed as a scatter plot.}
   
   \label{ICA}  
   \begin{center}
-    \includegraphics[width=0.33\textwidth]{figures/NMFnone.png}
+    \includegraphics[width=0.48\textwidth]{figures/NMFnone.png}
   \end{center}
   
   \caption{The first two non-negative factorization components of the PTFE image displayed as a scatter plot.}
@@ -282,20 +282,28 @@ Additional to the previous methods, a new clustering method was also proposed. T
 
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{figures/PCAsphericalbefore.png}
     \end{subfigure}
     ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
       %(or a blank line to force the subfigure onto a new line)
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{figures/PCAsphericalafter.png}
     \end{subfigure}
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{figures/algo_flow.png}
-    \end{subfigure}
-    \caption{IBGMM method. The left plot shows the original PVC clustering using the BGMM. The middle plot shows the final clustering after convergence. On the right is an overview of the workflow.}
+    \caption{IBGMM method. The left plot shows the original PVC clustering using the BGMM. The middle plot shows the final clustering after convergence.}
     \label{iterative_method}
 \end{figure}
+
+\begin{wrapfigure}{R}{0.5\textwidth}
+  
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{figures/algo_flow.png}
+  \end{center}
+  
+    \caption{An overview of the workflow.}
+  
+  \label{algo_flow}
+\end{wrapfigure}
 
 \subsubsection{Post-processing}
 
@@ -322,7 +330,7 @@ First a uniform filter is applied to the image so that the binary data becomes c
     \includegraphics[width=0.48\textwidth]{figures/red_methods.png}
   \end{center}
   
-  \caption{Results of the dimensional reduction averaged over all materials}
+  \caption{Dimensional reduction results}
   
   \label{results:dr}
 \end{wrapfigure}
@@ -376,7 +384,7 @@ The results for the multi-material phantom as well as for a blank scan of PCA ar
 
 \subsubsection{Comparison to Otsu Thresholding}
 
-\begin{wrapfigure}{r}{0.33\textwidth}
+\begin{wrapfigure}{R}{0.33\textwidth}
   
   \begin{center}
     \includegraphics[width=0.33\textwidth]{figures/otsu.png}
@@ -433,7 +441,9 @@ In summary, benchmarking of segmentation algorithms on DE, SE, and spectral imag
 
 % or
 \appendix{}
-\section{Math}
+\section{Math ???}
+
+??? Not final ???
 
 To give a metric to describe the disorder in our clustering result we use the Shannon entropy of the classes given the clustering assignment $H(C|K)$ and the entropy of the classes  $H(C)$.
 
