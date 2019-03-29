@@ -25,7 +25,7 @@
 
 \begin{document}
 %\bstctlcite{IEEEexample:BSTcontrol}
-    \title{Benchmarking Unsupervised Learning Methods in Spectral Imaging}
+    \title{Unsupervised Learning Methods in X-ray Spectral Imaging Material Segmentation with a Cadmium Zinc Telluride (CZT) Detector}
     
 \author[a,1]{Jericho~O'Connell,\note{Corresponding author.}}
 \author[a]{Kevin J. Murphy}
@@ -44,7 +44,7 @@ Saanichton, BC, Canada}
 %--------------------------------------------------------------------------------%
 
 \abstract{
-X-ray projection data acquired with a 330 $\mu$m pitch  $8\times12$ Cadmium Zinc Telluride detector with five energy bins is utilized to benchmark nine unsupervised clustering algorithms for automated material segmentation. Each algorithm is benchmarked using single energy (SE), dual energy (DE) and multi energy (ME) data with clustering results scored based on homogeneity and completeness of the clusters. Homogeneity and completeness were defined using Rosenberg and Hirshberg's V-measure. Principle component analysis (PCA), independent component analysis, and non-negative matrix factorization are also benchmarked as dimensional reduction methods for spectral imaging. A phantom with two hard materials (glass, steel) and three soft materials (PVC, polypropylene, and PFTE) all embedded in PMMA was imaged. Analysis used five energy bins for the spectral image, two energy bins for the DE image and a single bin for the SE image. Results show spectral imaging had the highest V-measure on the soft materials using PCA and a novel interpolating BGMM with a V-measure of 0.71. This was 3.5\% better than DE and 20.3\% better than SE on this task. Conversely, SE imaging is most capable of hard tissue segmentation using a bayesian gaussian mixture model (BGMM), with a V-measures of 0.84. This was 6.3\% better than DE and 5.0\% better than spectral on this task. 
+In this work, we have investigated a number of unsupervised learning methods for material segmentation in projection x-ray imaging with a cadmium zinc telluride (CZT) detector. X-ray projection data of a plastic phantom with five different materials of three thicknesses were acquired with a 330 $\mu$m pitch  $8\times12$mm CZT detector with five energy bins. The phantom contained two hard materials (glass, steel) and three soft materials (PVC, polypropylene, and PFTE) all embedded in PMMA. The projection images were utilized to test nine unsupervised clustering algorithms for automated material segmentation. Each algorithm was investigated using single energy (SE), dual energy (DE) and multi energy (ME) images. Clustering results were scored based on homogeneity and completeness of the clusters, which were combined into the Rosenberg and Hirshberg's V-measure. Principle component analysis (PCA), independent component analysis (ICA), and non-negative matrix factorization (NMF) were tested as dimensional reduction methods. ME, DE and SE material segmentation was performed using five, two, and single energy images, respectively. ME had the highest V-measure on the soft materials using PCA and a novel interpolating bayesian gaussian mixture model (BGMM) clustering with a V-measure of 0.71. This was by 3.5\% better than DE and 20.3\% better than SE. Conversely, SE imaging was most capable of hard tissue segmentation using the standard BGMM, with a V-measures of 0.84. This was 6.3\% better than DE and 5.0\% better than ME. This work demonstrated that ME x-ray imaging might be superior in segmenting soft tissues compared to conventional SE x-ray imaging.
 
 }
 
@@ -59,15 +59,15 @@ X-ray projection data acquired with a 330 $\mu$m pitch  $8\times12$ Cadmium Zinc
 
 \section{Introduction}
 
-For the past hundred years, radiography has remained the front line of diagnostic imaging. Due to ubiquity, radiography delivers large amounts of dose to the general population. Compounding this issue, being the first-line of diagnostics, inaccuracies in radiography lead to false-positive findings. These false-positives subject healthy patients to more radiation and increase health care costs. For example, mammography's positive predictive power is as low as 20\% \cite{Skaane2013ProspectiveArbitration., Dickersin2010TheCancer, Kopans1992TheMammography., Mushlin1998EstimatingMeta-analysis, Chiarelli2013DigitalProgram} due to a high rate of false positives. False-positives are reported to be as high as 60\% for women undergoing screening mammography over 10 years \cite{Kerlikowske2013OutcomesTherapy, Hubbard2011CumulativeMammography}. Thus, we look at new x-ray imaging modalities such as spectral and dual energy (DE) radiography as means to improve the false-positive rates or provide similar image quality with a lower imaging dose .
+Over the past century, radiography has remained the primary tool in diagnostic imaging. It's prevalent use delivers a amount of radiation dose to the general population. Further, as a front line diagnostic tool, inaccuracies in radiography are responsible for false-positive findings, which subject healthy patients to more radiation and increase health care costs. For example, mammography's positive predictive power is estimated to be as low as 20\% \cite{Skaane2013ProspectiveArbitration., Dickersin2010TheCancer, Kopans1992TheMammography., Mushlin1998EstimatingMeta-analysis, Chiarelli2013DigitalProgram} due to a high rate of false positives. Longer term, false-positives are reported to be as high as 60\% for women undergoing screening mammography over 10 years \cite{Kerlikowske2013OutcomesTherapy, Hubbard2011CumulativeMammography}. Thus, we look at new x-ray imaging modalities such as spectral (ME) and dual energy (DE) radiography as means to improve the false-positive rates or provide similar image quality with a lower imaging dose.
 
 % The linear attenuation of X-rays is dependant on the density of the material. The density of the material is independent of the photon energy. If separating a material based on density the energy dependence of the attenuation is therefore not relevant. In contrast, with materials of similar density, the case for many soft tissues, materials cannot be separated based on density. In this case the energy dependence of the attenuation coefficient, characteristic of a material, is used to differentiate materials. This is done through a multi-energy imaging process \cite{Alvarez1976Energy-selectiveTomography.}. Naively one might think the more images at different energies acquired the better the determination of the energy dependence of the attenuation. However, in the original paper on dual energy imaging Alvarez states that two energies is sufficient: With two images we solve for the Compton scattering and photoelectric components in each voxel. These two components fully describe the attenuation in the kV range. Making more than dual energy imaging resultant in dependant information and no gain in tissue differentiation.
 
-Recently, Monte Carlo (MC) simulations have shown added benefits in tissue differentiation tasks using spectral CT \cite{Lalonde2016ACT} thus disputing the benefit of multi-energy imaging. Further, in planar imaging, which is the subject of this work, the use of more than two energies has been shown to improve material differentiation \cite{OConnell2019OptimalDetector}: Planar images typically contain an unknown depth of material, which must also be determined to identify the material. Thus spectral image is hypothesized to aid in planar imaging segmentation tasks. Since spectral and DE imaging are concerned with differentiation of soft materials based on differences in the x-ray beam attenuation rather than the mass density, new methods are applied to analyze materials. Much of the work in DE CT focused on the calculation of elemental compositions for MC dose calculations and thus converts the DE images into the electron density and effective atomic number to characterize the material \cite{Bazalova2008Dual-energyCalculations,Landry2013DerivingCoefficients,Saito2017ABody}. These calculations assume the uniformity of each CT voxel, reasonable for CT, for planar imaging the region of interest will be non-uniform. This leaves room to explore new methods for segmentation with this modality:
+Recently, Monte Carlo (MC) simulations have shown added benefits in tissue differentiation tasks using ME CT \cite{Lalonde2016ACT} thus disputing the benefit of multi-energy imaging. Further, in planar imaging, which is the subject of this work, the use of more than two energies has been shown to improve material differentiation \cite{OConnell2019OptimalDetector}: Planar images typically contain an unknown depth of material, which must also be determined to identify the material. Thus ME image is hypothesized to aid in planar imaging segmentation tasks. Since ME and DE imaging are concerned with differentiation of soft materials based on differences in the x-ray beam attenuation rather than the mass density, new methods are applied to analyze materials. Much of the work in DE CT focused on the calculation of elemental compositions for MC dose calculations and thus converts the DE images into the electron density and effective atomic number to characterize the material \cite{Bazalova2008Dual-energyCalculations,Landry2013DerivingCoefficients,Saito2017ABody}. These calculations assume the uniformity of each CT voxel, reasonable for CT, for planar imaging the region of interest will be non-uniform. This leaves room to explore new methods for segmentation with this modality.
 
-work image segmentation using a Cadmium Zinc Telluride (CZT) spectral detector with five energy bins is explored. Using five energy bins we have a modality that is in between two better known imaging modalities: On one side we have DE imaging and on the other is hyperspectral. Hyperspectral imaging is performed at photon energies near the visual spectrum and sees application in very different use cases than DE x-ray imaging \cite{Lu2014MedicalReview.,Khan2018ModernReview}. However the data is in the format of a multi-dimensional energy image and thus has parallels to spectral imaging. In hyperspectral imagining clustering methods have been successful automatically segmenting images \cite{Murphy2018UnsupervisedDiffusion,Gillis2012HyperspectralGraphs,Noe2001PartialClustering}. Likewise dimensional reduction is standard in the pre-processing of the images \cite{Mahesh2015HyperspectralMaterials}. With these methods as motivation we apply clustering methods to spectral imagingas well as single and DE imaging.
+In this work image segmentation using a Cadmium Zinc Telluride (CZT) ME detector with five energy bins is explored. Using five energy bins we have a modality that is in between two better known imaging modalities: On one side we have DE imaging and on the other is hyperspectral. Hyperspectral imaging is performed at photon energies near the visual spectrum and sees application in very different use cases than DE x-ray imaging \cite{Lu2014MedicalReview.,Khan2018ModernReview}. However the data is in the format of a multi-dimensional image, with each dimension acquired at a seperate energy, this has parallels to ME imaging. In hyperspectral imagining clustering methods have been successful automatically segmenting images \cite{Murphy2018UnsupervisedDiffusion,Gillis2012HyperspectralGraphs,Noe2001PartialClustering}. Likewise dimensional reduction is standard in the pre-processing of the images \cite{Mahesh2015HyperspectralMaterials}. With these methods as motivation we apply clustering methods to ME imaging as well as single energy (SE) and DE imaging.
 
-In SE CT imaging clustering methods have applied for segmentation. Yoa et al. applied a gaussian mixture model (GMM) to segment spinal CT volumes for automated segmentaion in a surgical setting \cite{Yao2004ColonicModels}. Likewise, Li et al. apply a fuzzy c-means segmentation in order to segment colon polyps \cite{Li2008ImprovedRadiography}. However to the best of the authors' knowledge a comprehensive comparison of clustering methods on an x-ray imaging task has not been performed. This work aims to be the first general comparison of clustering methodologies on a planar imaging task. This work also aims to benchmark performance of single, dual, and spectral clustering methods using data aquired with a CZT spectral detector with five energy bins in a phantom study. Further, a novel interpolating clustering algorithm is proposed for optimal soft tissue segmentation.
+In SE CT imaging clustering methods have applied for segmentation. Yoa et al. applied a gaussian mixture model (GMM) to segment spinal CT volumes for automated segmentation in a surgical setting \cite{Yao2004ColonicModels}. Likewise, Li et al. apply a fuzzy c-means segmentation in order to segment colon polyps \cite{Li2008ImprovedRadiography}. However to the best of the authors' knowledge a comprehensive comparison of clustering methods on an x-ray imaging task has not been performed. This work aims to be the first general comparison of clustering methodologies on a planar imaging task. This work also aims to benchmark performance of SE, dual, and ME clustering methods using data acquired with a CZT ME detector with five energy bins in a phantom study. Further, a novel interpolating clustering algorithm is proposed for optimal soft tissue segmentation.
 
 
 %--------------------------------------------------------------------------------%
@@ -83,33 +83,34 @@ In SE CT imaging clustering methods have applied for segmentation. Yoa et al. ap
 \begin{figure}[htbp]
 
 
-\includegraphics[width=\textwidth]{FullFigure.jpg}
+\includegraphics[width=\textwidth]{figures/aquisition2.png}
 
   
   \caption{a) A photograph and b) a schematic of the imaging setup. c) A schematic drawing of the PMMA phantom used for material segmentation tests.}
   \label{figure:setup}
 \end{figure}
 
-A complete overview of the analysis and segementation workflow is depicted Figure \ref{overview}.
+A complete overview of the analysis and segmentation workflow is depicted Figure \ref{overview}.
 
-Planar x-ray images of a rectangular PMMA phantom with five materials (steel, glass, PVC, polypropylene, and PTFE) were acquired with a CZT detector (Redlen Technologies, Victoria, BC, Canada) on a table-top imaging system. PVC, polypropylene and PTFE were considered to be the soft materials while glass and steel were considered the hard materials in our material segmentation analysis. These materials were used as a benchmark as they are cheaply available and span the range of densities found in the human body (0.95 - 1.92) \cite{White1989Report44}. Steel is also used as it is commonly found in medical imaging densities can be seen in Table \ref{table:densities}. 
+Planar x-ray images of a rectangular PMMA phantom with five materials (steel, glass, PVC, polypropylene, and PTFE) were acquired with a CZT detector (Redlen Technologies, Victoria, BC, Canada) on a table-top imaging system. PVC, polypropylene and PTFE were considered to be the soft materials while glass and steel were considered the hard materials in our material segmentation analysis. These materials were used as a benchmark as they are cheaply available and span the range of densities found in the human body (0.95 - 1.92) \cite{White1989Report44}. Steel is also used as it is commonly found in medical imaging densities can be seen in Table 1. PTFE was considered a soft material, although denser than bone, it has an effective atomic number similar to soft materials and provided contrast similar to the soft materials in PMMA. The effective atomic numbers were calculated using the method of Murty et al. \cite{MURTY1965EffectiveMaterials}.
 
-\begin{table}[]
+\begin{table}[b]
+\caption{Material Densities}
 \begin{tabular}{lllllll}
 
                                                        & PMMA & PP    & PVC   & PTFE & Glass & Steel \\ \hline
 Density {[}g/cm$^3${]}                  & 1.18 & 0.94  & 1.11  & 2.1  & 2.8   & 8.0   \\
-Density relative to PMMA {[}g/cm$^3${]} & -    & -0.24 & -0.07 & 0.92 & 1.62  & 6.82 
+Effective Atomic Number & 6.56    & 5.35 & 14.3 & 8.5 & 18.1 \cite{Sharma2012EffectiveGlasses}  & 26 
 \end{tabular}
 \label{table:densities}
-\caption{Material Densities}
+
 \end{table}
 
 Data was acquired using a CZT array capable of sorting x-rays into six energy bins with a 8$\times$12 mm imaging array. The 330 $\mu$m pitch high-flux CZT detector is 2mm thick and is able to operate at 250 $\frac{Mcps}{mm^2}$ without any signs of polarization. Travel Heat Method (THM) was adopted when growing the CZT crystals were placed in a sensor that was connected to a photon counting ASIC which operates at rates of up to 62.5 $\frac{Mcps}{channel}$. This ASIC communicated with an external PC though low-voltage differential signalling I/Os via a programmable field-programmable gate array. The energies of photons incident with the detector are sorted into five energy bins by the ASIC. In the case of this experiment the energy bins were set to 16-33 keV, 33-41 keV, 41-50 keV, 50-90 keV, and 90-120 keV.
 
 The detector and X-ray source (XRS-160, Comet Technologies, Bern, Switzerland) were both mounted on vertical and horizontal linear motion stages (Newport technologies, Irvine, CA). These stages were oriented perpendicular to each other to allow for easy navigation while imaging the phantom, which was placed on a stage in between the x-ray source and the CZT detector. The x-ray source used was a module XRS-160 from Comet Technologies. A photograph of the experimental setup can be seen in Figure \ref{figure:setup} a). 
 
-The PMMA phantom block in Figure \ref{figure:setup} c) was placed on the stage and the 3 smallest inserts of each material were imaged. Air scans were also acquired for image normalization as $-log\frac{I}{I_o}$ where $I$ is the image intensity and $I_o$ is the air scan. During all scans the X-ray tube was using a cone beam operated at 1 mA tube current, 120 kV tube voltage with a 1-mm focal spot. A DE image was created for each spectral image by summing over the first two (16-41keV) and last three 
+The PMMA phantom block in Figure \ref{figure:setup} c) was placed on the stage and the 3 smallest inserts of each material were imaged. Air scans were also acquired for image normalization as $-log\frac{I}{I_o}$ where $I$ is the image intensity and $I_o$ is the air scan. During all scans the X-ray tube was using a cone beam operated at 1 mA tube current, 120 kV tube voltage with a 1-mm focal spot. A DE image was created for each ME image by summing over the first two (16-41keV) and last three 
 (41-120 keV) bins of the image while a SE image was created by summing over all of the bins.
 
 
@@ -128,6 +129,7 @@ The PMMA phantom block in Figure \ref{figure:setup} c) was placed on the stage a
 
 Image segmentation was undertaken as a multistage process. Here we applied techniques used in hyperspectral imaging; Mahesh et al. \cite{Mahesh2015HyperspectralMaterials} state that the main steps in hyperspectral images segmentation include:
 \begin{itemize}
+\setlength\itemsep{0em}
 \item Pre-processing of data 
 \item Dimensional reduction
 \item Enhancement of spectral responses
@@ -222,7 +224,7 @@ This was done in using scikit-learn's NMF function, minimizing using the gradien
 
 \subsubsection{K-means}
 
-The first clustering method implemented was K-means clustering. K-means was implemented using the k-means++ algorithm \cite{ArthurK-means++:Seeding}. Different distance metrics were used, however none of the distance metrics tested improved performance over the squared euclidean distance, thus squared euclidean distance was used. K-means is a general purpose, fast and scalable clustering algorithm. Like many of the methods examined K-means requires the parameter $K$ which describes the number of clusters in the data. This parameter can be hard to estimate in some cases. Methods for defining the parameter $K$ will be seen in the following metrics section.
+K-means clustering was implemented using the k-means++ algorithm \cite{ArthurK-means++:Seeding}. K-means is a general purpose, fast and scalable clustering algorithm. Different distance metrics were used, however none of the distance metrics tested improved performance over the default squared euclidean distance, thus squared euclidean distance was used throughout the manuscript. Like many of the methods examined K-means requires the parameter $K$ which describes the number of clusters in the data. This parameter can be difficult to estimate in some cases. Methods for defining the parameter $K$ will be described in the following metrics section.
 
 \begin{figure}[t!]
     \centering
@@ -235,27 +237,28 @@ The first clustering method implemented was K-means clustering. K-means was impl
         \includegraphics[width=\textwidth]{figures/GMM.png}
     \end{subfigure}
 
-    \caption{Comparison of K-means to GMM on the polypropylene image. A contour is displayed representing the probabililty distribution for the GMM and the euclidean distance for K-means is displayed.}
+    \caption{Comparison of K-means to GMM on the polypropylene image. A contour is displayed representing the  euclidean distance for K-means and the probabililty distribution for the GMM.}
     \label{clustering_methods}
 \end{figure}
 
 \subsubsection{Gaussian Mixture Models}
 
-A gaussian mixture model (GMM) can be used as a clustering method implicitly accounts for the Gaussian nature of a dataset. We expect this method to behave well for the Poisson statistics present in imaging. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution. A more complete overview of GMMs can be found at \cite{DinovExpectationTutorial}.
+A gaussian mixture model (GMM) is used as a clustering method that implicitly accounts for the Gaussian nature of a dataset. A GMM is expected to perform well due to the Poisson satistics present in x-ray imaging. First we will discuss a general mixture model and then we will see how it is changed by assuming a Gaussian distribution. A more complete overview of GMMs can be found in \cite{DinovExpectationTutorial}.
 
-General mixture models contain $N$ data points, each assumed to be a mixture of $K$ components, with all of these components assumed to be from the same family of distributions. In this case a Gaussian distribution. However these distributions are allowed to have different parameters, in this case different means and variances. The model also includes the identity of the mixture component to which each data point belongs. Also necessary is a weighting of each of the $K$ components and sets of parameters for each of the distributions, in this case means and variances for the Gaussians. In this work the number of components used was two and a further constraint was put on the variance of the GMMs to assure that they are spherical in the PCA case.
+General mixture models contain $N$ data points, each assumed to be a mixture of $K$ components, with all of these components assumed to be from the same family of distributions, in this case a Gaussian distribution. However these distributions are allowed to have different parameters, such as different means and variances. The model also includes the identity of the mixture component to which each data point belongs. A weighting of each of the $K$ components and sets of parameters for each of the distributions, in this case means and variances for the Gaussians, are necessary. In this work two components were used and an additional constraint was put on the variance of the GMMs to assure that the clusters are spherical in the PCA case.
 
-A bayesian GMM (BGMM) differs from the regular GMM in the fitting of the statistical model to the data. A regular GMM uses the expectation maximization (EM) algorithm to fit the gaussian to the data. In a BGMM variational inference extends the EM algorithm to maximize the lower bound on model evidence (including priors) instead of the maximum likelihood \cite{Blei2006VariationalMixtures}.
+A bayesian GMM (BGMM) differs from the regular GMM in the fitting of the statistical model to the data. A regular GMM uses the expectation maximization (EM) algorithm to fit the Gaussian to the data. In a BGMM variational inference extends the EM algorithm to maximize the lower bound on model evidence (including priors) instead of the maximum likelihood \cite{Blei2006VariationalMixtures}.
 
 \subsubsection{Other Clustering Methods}
 
-A number of other clustering methods were compared. These additional methods and their parameters are summarized in Table \ref{tab1}.
+A number of other clustering methods were compared. These additional methods, together with the methods above, are summarized in Table \ref{tab1}.
 
 
 % Please add the following required packages to your document preamble:
 % \usepackage[table,xcdraw]{xcolor}
 % If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
 \begin{table}[htbp]
+\caption{Summary of clustering methods}
 \begin{tabular}{|l|l|l|l|}
 \hline
 
@@ -266,47 +269,61 @@ Spectral clustering                                                  & \begin{ta
 \begin{tabular}[c]{@{}l@{}}Ward hierarchical\\ clustering \cite{Ward1963HierarchicalFunction}\end{tabular} & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ connectivity matrix\end{tabular}                                                                  & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ estimated as:\\ $1/2*(C+C')$\\ where C is the\\ K neighbors graph of\\ the data.\end{tabular} & \begin{tabular}[c]{@{}l@{}}Squared\\ euclidean\\ distance\end{tabular}      \\ \hline
 HDBSCAN \cite{Campello2015HierarchicalDetection}                                                                & \begin{tabular}[c]{@{}l@{}}minimum samples,\\ minimum cluster size,\\ metric\end{tabular}                                                          & \begin{tabular}[c]{@{}l@{}}10,\\ 10,\\ minkowski\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}Distances between\\ nearest points\end{tabular}  \\ \hline
 Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type\end{tabular}                                                                      & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical\end{tabular}                                                                        & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
-Birh \cite{Zhang1996BIRCH}                                               & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
-Bayesian \\Gaussian Mixture                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type,\\ weight concentration\\ prior type,\\ weight concentration\\ prior\end{tabular} & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical,\\ dirichlet process,\\ 1/(number of clusters)\end{tabular}                      & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
+Birch \cite{Zhang1996BIRCH}                                               & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ branching factor, \\ threshold\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ 19,\\ 0.0001\end{tabular}                                                                     & \begin{tabular}[c]{@{}l@{}}Euclidean \\ distance\end{tabular}               \\ \hline
+\begin{tabular}[c]{@{}l@{}}Bayesian \\ Gaussian Mixture\end{tabular}                                                       & \begin{tabular}[c]{@{}l@{}}number of clusters,\\ covariance type,\\ weight concentration\\ prior type,\\ weight concentration\\ prior\end{tabular} & \begin{tabular}[c]{@{}l@{}}1 or 2,\\ spherical,\\ dirichlet process,\\ 1/(number of clusters)\end{tabular}                      & \begin{tabular}[c]{@{}l@{}}Mahalanobis \\ distances to centers\end{tabular} \\ \hline
 \end{tabular}
-\caption{Summary of clustering methods}
+
 \label{tab1}
 \end{table}
+
+A thresholding method, Otsu's thresholding, was also applied to the data. In X-ray image segmentation Otsu's method \cite{Otsu1979AHistograms} is sometimes used for image segmentation \cite{Sund2003AnImaging}. Thus, Otsu's method was also applied as a segmentation method to compare the clustering methods to a more typical approach.
 
 \subsection{Metrics}
 \subsubsection{V-measure}
 
-To evaluate the effectiveness of the clustering methods a ground truth was acquired for each image. These ground truths were manually segmented with the help of a reference photograph of the phantom imaged. For clarity, the labels we give to the ground truth will be referred to as classes while the results of the clustering methods will be clusters.
+To evaluate the effectiveness of the clustering methods a ground truth was acquired for each image. These ground truths were manually segmented with the help of a reference photograph of the known phantom geometry. For clarity, the labels we give to the ground truth will be referred to as classes while the results of the clustering methods will be clusters.
 
-Evaluation compared these ground truth classes to clusters. When comparing the clusters to the ground truth two principals were considered: The first metric is homogeneity. Homogeneity is satisfied if a cluster contains data points of a single class. We note, if using homogeneity as the sole evaluation metric, assigning all points to one class would attain a perfect evaluation score. Thus we introduce a second evaluation metric, completeness, satisfied if all data points of a single class are in a single cluster. 
+When comparing the clusters to the ground truth two metrics were considered homogeneity and completeness: The first metric is homogeneity. Homogeneity is satisfied if a cluster contains data points of a single class. Completeness, satisfied if all data points of a single class are in a single cluster. 
 
-Homogeneity and completeness are formulated mathematically using the method described by Rosenberg and Hirschberg \cite{Rosenberg2007V-Measure:Measure} which can be found in the Appendix. To simplify we build a single metric that uses a combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness.
+Homogeneity and completeness are formulated mathematically using the method described by Rosenberg and Hirschberg \cite{Rosenberg2007V-Measure:Measure} which can be found in the Appendix. To simplify we build a single metric that uses a combination of both homogeneity $h$ and completeness $c$. This combination is called the V-measure and is the harmonic mean of homogeneity and completeness:
 
 
 \begin{equation}
-v = 2 \cdot \frac{h \cdot c}{h + c}
+V = 2 \cdot \frac{h \cdot c}{h + c}
 \end{equation}
 
 This value ranges from 0 to 1, a perfect classification has a score of one while assigning each point to a cluster would result in a score of zero.
 
 \subsubsection{Akaike Information Criterion}
 
-The Akaike information criterion (AIC) \cite{Akaike1998InformationPrinciple} is an estimator of the relative quality of a statistical model for a given data set. Unlike a V-measure, AIC could not compare different clustering methods, and was used instead to find parameters for the GMMs. As most clustering models discussed do not include a statistical models it's application is limited to the GMMs.
+The Akaike information criterion (AIC) \cite{Akaike1998InformationPrinciple} is an estimator of the relative quality of a statistical model for a given data set. Unlike a V-measure, AIC cannot compare different clustering methods, and it was used instead to find parameters for the GMMs. As most clustering models discussed do not include a statistical models the application of AIC is limited to the GMMs.
 
-AIC is a function of the goodness of fit of a statistical model combined with a penalty for overfitting. In this work AIC tested the goodness of fit of the GMM's Gaussian, with a penalty proportional to the number of clusters. Used this way, AIC determines can determine the optimal number of clusters and other GMM parameters.
+AIC is a function of the goodness of fit of a statistical model combined with a penalty for overfitting. In this work AIC tested the goodness of fit of the GMM's Gaussian, with a penalty proportional to the number of clusters. Used this way, AIC determines can determine the optimal number of clusters and other GMM parameters such as constraints on the covariance matrix.
 
-Specifically the maximum likelihood found while fitting the GMMs using the EM algorithm, $\hat L$, and the number of parameters $k$ were used to calculate the AIC as:
+A maximum likelihood estimate is used to calculate the AIC. In this case, the maximum likelihood, $\hat L$, was found fitting the GMMs using the EM algorithm and the number of parameters $k$ is the total number of fitted parameters. These values were used to calculate the AIC as:
 
 \begin{equation}
     AIC \, = \, 2k - 2\ln(\hat L)
 \end{equation}
 
-For a given model the lowest AIC denotes a better fit. More specifically an "elbow" or change in curvature of the AIC as a function of the number of components denotes the optimal number of components. For BGMMs, which do not produce a maximum likelihood in training, AIC was calculated using the $\hat L$ from a GMM with the same parameters.
+For a given model, the lowest AIC denotes a better fit. More specifically an "elbow" or change in curvature of the AIC as a function of the number of components denotes the optimal number of components. For BGMMs, which do not produce a maximum likelihood in training, AIC was calculated using the $\hat L$ from a GMM with the same parameters.
+
+To determine the number of clusters $k$ reliably without human oversight. This was attempted by comparing the AICs and weights for both the $k=1$ and $k=2$ cases. If the AIC did not decrease significantly between one and two clusters and the weights for the two clusters were similar this indicated that there was only one material present.
+
+\begin{wrapfigure}{R}{0.42\textwidth}
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{figures/algo_flow.png}
+  \end{center}
+        \hspace*{-2in}
+    \caption{An overview of the workflow.}
+  
+  \label{algo_flow}
+\end{wrapfigure}
 
 \subsection{Interpolating Bayesian Gaussian Mixture Model}
 
 %Initial clustering results contained many pixels misclassified due to poor detector response, noise in the data and partial volume effects. To combat these effects a
-Additional to the previous methods, a new clustering method was also proposed.  A demonstration of this method can be seen in Figure \ref{iterative_method}. The workflow of this method is seen in Figure \ref{algo_flow}. A BGMM was trained as in the GMM section above. Within each cluster the mahalanobis distance \cite{Mahalanobis1936OnStatistics} from all the points to the center was calculated. Points greater than \%90 of the maximum were then identified as potential outliers. Each potential outlier was then interpolated spacialy using biharmonic interpolation \cite{Damelin2017OnAspects}. The BGMM was then retrained using starting point defined by the end state of the previous iteration. The process was then repeated until convergence. Convergence was indicated when the AIC of the model increased. In practice this amounted to between five and ten iterations.
+Additional to the previous methods, a new clustering method was also proposed.  A demonstration of this method can be seen in Figure \ref{iterative_method}. The workflow of this method is seen in Figure \ref{algo_flow}. A BGMM was trained as in the GMM section above. Within each cluster the Mahalanobis distance \cite{Mahalanobis1936OnStatistics} from all the points to the center was calculated. Points at a distance greater than 90\% of the maximum distance were then identified as potential outliers. Each potential outlier was then interpolated spatially using biharmonic interpolation \cite{Damelin2017OnAspects}. The BGMM was then retrained using starting point defined by the end state of the previous iteration. The process was then repeated until convergence which was indicated by an increasing AIC, typically 5-10 iterations.
 
 \begin{figure}[htbp]
     \centering
@@ -318,41 +335,15 @@ Additional to the previous methods, a new clustering method was also proposed.  
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{figures/PCAsphericalafter.png}
     \end{subfigure}
-    \caption{IBGMM method. The left plot shows the original PVC clustering using the BGMM. The middle plot shows the final clustering after convergence.}
+    \caption{IBGMM method. The left plot shows the original PVC clustering using the BGMM. The right plot shows the final clustering after convergence. The contours show the contours of the two dimensional Gaussian for each cluster. Black dots are misclassified pixels.}
     \label{iterative_method}
 \end{figure}
 
-\begin{wrapfigure}{R}{0.5\textwidth}
-  
-  \begin{center}
-    \includegraphics[width=0.48\textwidth]{figures/algo_flow.png}
-  \end{center}
-  
-    \caption{An overview of the workflow.}
-  
-  \label{algo_flow}
-\end{wrapfigure}
+
 
 \subsection{Post-processing}
 
-The aim of this work is to entirely automate image segmentation. Thus on top of the clustering it is necessary to introduce an identification layer. This layer took the segmented image after the clustering and identified if there are two materials present. To do this the following framework was developed:
-
-First a uniform filter is applied to the image so that the binary data becomes continuous. This acts to reduce the score of single pixels that have been identified. Secondly, we apply a threshold to the image of 0.2. Next, we fill all of the binary holes in the image to make candidates for segmentation more uniform. A bounding box is then created around all of the nonzero elements of the image and overlaid on the image as the final output.
-
-
-
-
-%--------------------------------------------------------------------------------%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%--------------------------------------------------------------------------------%
-
-\section{Results and Discussion}
-
-\subsection{Dimensional Reduction Results}
-
-\subsection{Clustering Results}
-
-\begin{wrapfigure}{R}{0.48\textwidth}
+\begin{wrapfigure}[15]{R}{0.48\textwidth}
   
   \begin{center}
     \includegraphics[width=0.48\textwidth]{figures/red_methods.png}
@@ -363,13 +354,32 @@ First a uniform filter is applied to the image so that the binary data becomes c
   \label{results:dr}
 \end{wrapfigure}
 
-Figure \ref{results:dr} shows the V-measures for different dimensional reduction methods averaged over all materials for each clustering method. The dimensional reduction methods reduced the dimensionality from five to two in each case. For comparison the results without dimensional reduction are also displayed.
+The aim of this work was to entirely automate image segmentation. It was therefore necessary to introduce an identification layer. This layer identified if there were two materials present in the segmented image after clustering was applied using the following framework:
 
-Overall PCA had the best results combined with the BGMM. V-measures were 0.71, 0.72, 0.72, and 0.74 for ICA, no dimensional reduction, NMF, and PCA respectively. PCA was on average 2.7\% better than ICA and 2.6\% better than NMF in this case. All other clustering methods performed the best with PCA other than K-means which performed better with ICA.
+First a uniform filter was applied to the image so that the binary data becomes continuous. This acts to reduce the score of isolated pixels that have been identified. Secondly, we apply a threshold to the image of 0.2. Next, we fill all of the binary holes in the image to make candidates for segmentation more uniform. A bounding box is then created around all of the nonzero elements of the image and overlaid on the image as the final output.
+
+
+
+
+%--------------------------------------------------------------------------------%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------------%
+
+
+
+\section{Results and Discussion}
+
+\subsection{Dimensional Reduction} 
+
+
+
+Figure \ref{results:dr} shows the V-measures for different dimensional reduction methods averaged over all materials for each clustering method. For comparison the results without dimensional reduction are also displayed.
+
+Overall PCA had the best results. V-measures were 0.71, 0.72, 0.72, and 0.74 for ICA, no dimensional reduction, NMF, and PCA respectively. PCA was on average 2.7\% better than ICA and 2.6\% better than NMF in the best case. All other clustering methods performed best with PCA other than K-means which performed better with ICA.
 
 % Figure \ref{results:hard_soft} a) shows the results of the clustering methods using PCA with two principal components. Overall the GMMs resulted in the best clustering V-measures. Spectral clustering resulted in comparable V-measure in some cases.
 
-\begin{figure}[b!]
+\begin{figure}[t!]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{figures/energy_comparison.png}
@@ -388,17 +398,19 @@ Overall PCA had the best results combined with the BGMM. V-measures were 0.71, 0
 
 \subsubsection{Single, Dual, and Spectral Comparison}
 
-Results can be seen in Figure \ref{results:hard_soft}. Overall spectral imaging was seen to be marginally better that dual and single energy imaging averaged over all of materials. The V-measure for the BGMM method which was best in all modalities was 0.69, 0.71, and 0.74 for single, dual, and spectral respectively. Spectral was seen to be on average 4.2\% better than DE imaging and 7.2\% better than SE imaging.
+Overall ME imaging was seen to be marginally better that DE and SE imaging when the results were averaged over all investigated materials (Figure \ref{results:hard_soft}. The V-measure for the BGMM method which was best in all modalities was 0.74, 0.71 and 0.69 for ME, DE and SE x-ray imaging respectively. V-measure of ME imaging was on average 4.2\% better than DE imaging and 7.2\% better than SE imaging.
 
-Figure \ref{results:hard_soft} b-c) show the results separated in term of the material density. Hard materials such as glass and steel had the best results for SE clustering with the BGMM. The best V-measures for the hard tissues were 0.84, 0.79, and 0.80 for single, dual, and spectral respectively. While for soft materials (PVC, PTFE, PP) the IBGMM method saw the best results when clustering with spectral and DE imaging with V-measures of 0.71 and 0.69 respectively, while for SE the BGMM performed best with a V-measure of 0.59. This was a gain of 16.9\% between single and dual and a gain of 3.5\% between dual and spectral.
+
+
+Figure \ref{results:hard_soft} b-c) show the results separated in terms of the material density. Hard materials such as glass and steel had the best results for SE clustering with BGMM. The best V-measures for the hard tissues were 0.80, 0.79, and 0.84 for ME, DE and SE respectively. While for soft materials (PVC, PTFE, PP) the IBGMM method provided the best results when clustering with ME and DE imaging with V-measures of 0.71 and 0.69 respectively, SE with BGMM performed best with a V-measure of 0.59. This was a gain of 16.9\% between SE and DE and a gain of 3.5\% between DE and ME.
+
+
 
 \subsubsection{Number of Clusters}
 
-Given the result that BGMMs result in the lowest V-measure, there is further analysis necessary to determine if the process can be automated. Namely if we can determine the number of clusters $k$ reliably without human oversight. This was attempted by comparing the AICs and weights for both the $k=1$ and $k=2$ cases. If the AIC did not decrease significantly between one and two clusters and the weights for the two clusters were similar this indicated that there was only one material present.
-
 The results for the multi-material phantom as well as for a blank scan of PCA are shown below. The AIC for all of materials was seen to decrease by on average 6683 and 1208 in the worst case. For the blank scan the AIC was seen to decrease by 160. The weights for the different materials were seen to be in the most equal case \%40 different for PTFE and was only \%10 different in the one material case.
 
-\begin{figure}[b!]
+\begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{figures/AIC.png}
@@ -406,24 +418,15 @@ The results for the multi-material phantom as well as for a blank scan of PCA ar
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{figures/weights.png}
     \end{subfigure}
-    \caption{Number of clusters.}
+    \caption{The comparison in AIC (a) and weights (b) for 1 and 2 clusters for the investigated materials as well as a PMMA only scan.}
     \label{n_bins}
 \end{figure}
 
-\subsubsection{Comparison to Otsu Thresholding}
+\subsubsection{Number of clusters}
 
-\begin{wrapfigure}{R}{0.33\textwidth}
-  
-  \begin{center}
-    \includegraphics[width=0.33\textwidth]{figures/otsu.png}
-  \end{center}
-  
-  \caption{Overlay of the different segmentation methods on the PVC SE image}
-  
-  \label{results:otsu}
-\end{wrapfigure}
 
-In X-ray image segmentation Otsu's method \cite{Otsu1979AHistograms} is sometimes used for image segmentation \cite{Sund2003AnImaging}. Here we compare this algorithm to the IBGMM with spectral imaging on a soft tissue segmentation. As can be seen in Figure \ref{results:otsu} when the background had similar composition to the material in question there was erratic thresholding of the background. In this case the IBGMM had a V-measure of 0.74 while the thresholding method has a score of 0.41. One can see in Figure \ref{results:otsu} that thresholding cannot resolve the thinnest insert in the image and the IBGMM is the only method that is able to recover the circular shape of the insert while suppressing noise in the data.
+
+As can be seen in Figure \ref{results:otsu} when the background had similar composition to the material in question there was erratic thresholding of the background. In this case the IBGMM had a V-measure of 0.74 while the thresholding method has a V-measure of 0.41. One can see in Figure \ref{results:otsu} that thresholding cannot resolve the thinnest (2mm) insert in the image and the IBGMM is the only method that is able to recover the circular shape of the insert while suppressing noise in the data.
 
 
 %--------------------------------------------------------------------------------%
@@ -432,34 +435,47 @@ In X-ray image segmentation Otsu's method \cite{Otsu1979AHistograms} is sometime
 
 \section{Discussion}
 
-Spectral imaging was seen to have a 20.3\% higher V-measure than single and 3.5\% higher V-measure than DE imaging in segmenting on soft materials. Conversely, SE imaging was more effective by both dual and spectral imaging on the hard tissue segmentation with a margin of 6.3\% and 5.0\% respectively. These results are consistent with results from spectral CT. Lalonde \cite{Lalonde2016ACT} found that having three energies with would improve errors in elemental composition calculations, but only marginally compared to the gains between single and dual energy. Reaching the conclusion that DE CT is worthwhile for elemental composition calculations. Likewise in this application, SE imaging is seen to be much less effective than DE imaging for soft material segmentation while dual and spectral have similar results with spectral having a 3.5\% higher V-measure. This raises the question as to if spectral or DE imaging are ideal for this application? Moreover, are the considerable downsides of spectral and DE imaging are worth the potential benefits?
+ME imaging was seen to have a 20.3\% higher V-measure than SE and 3.5\% higher V-measure than DE imaging when segmenting soft materials. Conversely, SE imaging was more effective by both DE and ME imaging for the hard material segmentation with a margin of 6.3\% and 5.0\% respectively. These results are consistent with results from ME CT. Lalonde \cite{Lalonde2016ACT} found that three energies reduced errors in elemental composition calculations, but only marginally compared to the gains between SE and DE imaging. Likewise in this application, SE imaging is seen to be much less effective than DE imaging for soft material segmentation while DE and ME have similar results with ME having a 3.5\% higher V-measure. This raises the question as to if ME or DE imaging are ideal for this application? Moreover, are the considerable downsides of ME and DE imaging worth the potential benefits?
 
-Spectral detectors currently are very expensive compared to integrating detectors. Additionally, to the best of the authors knowledge clinical implementations of CZT detectors are not available. Some DE clinical implementations are available but are expensive compared to integrating detectors. To validate the benefit for the additional cost, one would need an application that has a high throughput, requires a small detector, and needs an accurate segmentation of soft tissues. A potential candidate that fits these requirements would be mammography, since mammography machines have high throughput, image a relatively small area and aim to segment soft tissues. 
+ME CZT detectors are currently very expensive compared to photon-integrating detectors. Additionally, to the best of the authors knowledge clinical implementations of ME x-ray imaging with CZT detectors. To validate the benefit for the additional cost, one would need an application that has a high throughput, is facilitated with a small detector, and needs an accurate segmentation of soft tissues. A potential candidate that fits these requirements would be mammography, since mammography machines have high throughput, image a relatively small area and aim to segment soft tissues. 
 
-This work discusses unsupervised methods for computer vision, recently supervised methods have produced superior results to unsupervised methods in many areas such as brain segmentation \cite{Bakas2018IdentifyingChallenge}, and general tumor segmentation \cite{MedicalDecathlon}. Therefore we ask; why implement these methods rather than a deep learning method?
+This work discusses unsupervised methods for computer vision, recently supervised methods have produced superior results to unsupervised methods in many areas such as brain segmentation \cite{Bakas2018IdentifyingChallenge}, and general tumor segmentation \cite{MedicalDecathlon}. So why implement these methods rather than a deep learning method?
 
-Deep learning has taken medical physics by storm. In recent years much success has been had implementing deep learning image segmentation \cite{IsenseeNnU-Net:Segmentation,Ronneberger2015U-Net:Segmentation}. However, deep learning implementations include considerable downfalls \cite{Marcus2018DeepAppraisal}. These methods are only as good as their training data, and deep learning models have no guarantee to converging to actual system modelled. A gradient descent algorithm may converge to a local minimum or overfit the data. Overfiffing introduces a chance of the model behaving unpredictably when new input data is used. This puts a large pressure on having a large and varied training dataset which is the best way to avoid overfitting.
 
-In medical physics imaging modalities are constantly improving. The equipment of five or ten years ago often has different capabilities than the state of the art. Thus, having a machine learning system that is dependant on clinical data for training goes contrary to the development cycle of imaging modalities: Large clinical datasets will not be acquired until the modality has been adopted by a large amount of health care providers. This begs the question; if we are to implement new imaging modalities to leverage deep learning how do we validate their utility without large clinical datasets?
 
-Thus this work is an alternate approach. Although the results of deep learning segmentation \cite{Ronneberger2015U-Net:Segmentation} would likely result in superior segmentation. A clinical dataset for spectral imaging does not exist. This could change, if spectral imaging is put into clinical practice in coming years. Thus these methods could exist in the interim, between when spectral imaging is implemented but before large clinical datasets become available. Further, having an automated segmentation method would of particular importance in clinical spectral imaging since manual segmentation is not as effective: Clinicians are disadvantaged compared to a computer when visualizing five dimensional images as compared to one dimensional images.
+Deep learning has taken medical imaging by storm. In recent years much success has been had implementing deep learning image segmentation \cite{IsenseeNnU-Net:Segmentation,Ronneberger2015U-Net:Segmentation}. However, deep learning implementations include considerable downfalls \cite{Marcus2018DeepAppraisal}. These methods are only as good as their training data, and deep learning models have no guarantee to converging to actual system modelled. A gradient descent algorithm may converge to a local minimum or overfit the data. Overfiffing introduces a chance of the model behaving unpredictably when new input data is used. This puts a large pressure on having a large and varied training dataset which is the best way to avoid overfitting.
 
-Acknowledgement should be made that for some of the clustering methods this application is not ideal. These methods have been left in the analysis for completeness. Particularly, the mean-shift and HDBSCAN methods, both performing poorly, do not include the parameter $k$ and thus define what they consider clusters in the data. Since the phantom is made of three inserts of different thicknesses there is reason for a method to fit more than two clusters to the data. Thus, it is not unexpected that these methods preform poorly in this task as we have not given them as much information as the other methods. 
+Imaging modalities are constantly improving. The equipment of five or ten years ago often has different capabilities than the state of the art today. Thus, having a machine learning system that is dependant on clinical data for training goes contrary to the development cycle of imaging modalities. Large clinical datasets will not be acquired until the modality has been adopted by a large amount of health care providers. This begs the question; if we are to implement new imaging modalities to leverage deep learning how do we validate their utility without large clinical datasets?
+
+\begin{wrapfigure}[39]{r}{0.33\textwidth}
+  
+  \begin{center}
+    \includegraphics[width=0.33\textwidth]{figures/otsu.png}
+  \end{center}
+  
+  \caption{Overlay of the different segmentation methods on the PVC image.}
+  
+  \label{results:otsu}
+\end{wrapfigure}
+
+Thus this work offers an alternate approach. Although deep learning segmentation \cite{Ronneberger2015U-Net:Segmentation} would likely result in superior segmentation. A clinical dataset for ME imaging does not yet exist, but this could change, if ME imaging is introduced into clinical practice in coming years. Thus these methods could exist in the interim, between when ME imaging is implemented and before large clinical datasets become available. Further, having an automated segmentation method would be of particular importance in clinical ME imaging since manual segmentation is not as effective: Clinicians are disadvantaged compared to a computer when visualizing five dimensional images as compared to one dimensional images.
+
+Some of the clustering methods this application is not ideal, however, these methods have been left in the analysis for completeness. Particularly, the mean-shift and HDBSCAN methods, both performing poorly, do not include the parameter $k$ and thus define what they consider clusters in the data. Since the phantom is made of three inserts of different thicknesses there is reason for a method to fit more than two clusters to the data. Thus, it is not unexpected that these methods preform poorly in this task as we have not given them as much information as the other methods. 
 
 %Additionally, HDBSCAN allows for pixels to be classified as noise and give them their own class. This could be a useful ability in some application, as one might want to disclude certain points from the analysis. Due to the fact that other algorithms did not have this feature the ground truth for the phantom was separated into two classes thus penalizing this behaviour in the v-measure. Conversely, one could also imagine an application where partial volume data could be outliers and this behaviour could be beneficial.
 
-It was seen that PCA is the optimal dimensional reduction method for spectral imaging in this task. Although ICA shows promise in hyperspectral imaging, it did not show improvement over the unreduced data in this implementation. In the hyperspectral implementation domain knowledge was used to calculate the exact spectral response of the materials to be segmented. Currently we were not able to model the spectral response of the materials and thus could not apply this domain knowledge. With an analytical model of the CZT detector response and a ray tracer one could calculate the mean attenuation for each energy bin. These values could be used as the means of the GMMs applying domain knowledge to better fit the data.
+It was seen that PCA is the optimal dimensional reduction method for ME imaging in this task. Although ICA shows promise in hyperspectral imaging, it did not show improvement over the unreduced data in this implementation. In the hyperspectral implementation domain knowledge was used to calculate the exact spectral response of the materials to be segmented. Currently we were not able to model the spectral response of the materials and thus could not apply this domain knowledge. With an analytical model of the CZT detector response and a ray tracer one could calculate the mean attenuation for each energy bin. These theoretical mean values could then be compared to the mean value of a GMM's cluster to identify a material.
 
-It was also seen that using the AIC and weights from the GMMs the parameter $k$ could be tuned for an algorithm. A scan of pure PMMA showed a difference of 160 between the AIC for $k=1$ and $k=2$ while all scans that included more than one material produced a difference in the AIC of at least 6683. Further, in the pure PMMA scan, weights between the two materials were seen to be similar with only a 10\% difference. These two metrics, in combination, can be used to avoid false negatives if image contains only one material.
+It was observed that using the AIC and weights from the GMMs the parameter $k$ could be tuned for an algorithm. A scan of pure PMMA showed a difference of 160 between the AIC for $k=1$ and $k=2$ while all scans that included more than one material produced a difference in the AIC of at least 6683. Further, in the pure PMMA scan, weights between the two materials were seen to be similar with only a 10\% difference. These two metrics, in combination, can be used to avoid false negatives if image contains only one material.
 
-For SE imaging the BGMM still showed the best results in this application. This approach could be used as an effective automatic segmentation technique superior to windowing for soft tissue segmentation. For dual and spectral imaging the IBGMM approach could yield superior segmentations and could see applications in breast lesion detection. IBGMM could serve as an automated second look working in tandem with a clinical professional. Further work could also investigate a semi-automated workflow, working with a trained person to cluster using user selected regions to be used as the mean of the GMM. In this was letting the user define the number of clusters and select material they would like the clusters to include.
+For SE imaging the BGMM still showed the best results in this application. This approach could be used as an effective automatic segmentation technique superior to windowing for soft tissue segmentation. For ME and DE the IBGMM approach could yield superior segmentations and could see applications in breast lesion detection. IBGMM could serve as an automated second look working in tandem with a clinical professional. Further work could also investigate a semi-automated workflow, working with a trained person to cluster using user selected regions to be used as the mean of the GMM, letting the user define the number of clusters and select materials they would like the clusters to include.
 
 %--------------------------------------------------------------------------------%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% conclusion %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------------%
 \section{Conclusion}
 
-In summary, benchmarking of segmentation algorithms on DE, SE, and spectral imaging has been presented as well as an improved method for image segmentation of soft materials in this domain. It was seen that SE imaging is most capable of hard tissue segmentation using a BGMM having the highest V-measures on glass and steel separation tasks of 0.84 which was 6.3\% better than DE and 5.0\% better than spectral. Conversely, spectral imaging had the highest V-measure on the softer tissues using PCA and a novel IBGMM method with a V-measure of 0.71 which was 3.5\% better than DE and 20.3\% better than SE.
+In summary, segmentation of ME, DE, and SE data has been presented as well as an improved method for image segmentation of soft materials. It was seen that ME imaging had the highest V-measure on the softer tissues using PCA and a novel IBGMM method with a V-measure of 0.71. This method was 3.5\% better than DE and 20.3\% better than SE. Conversely, SE imaging is most capable of hard tissue segmentation using a BGMM having the highest V-measures of 0.84. This method was 6.3\% better than DE and 5.0\% better than ME on the same task.
 
 %--------------------------------------------------------------------------------%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -467,11 +483,13 @@ In summary, benchmarking of segmentation algorithms on DE, SE, and spectral imag
 
 \section*{Acknowledgments}
 
+The authors would like to thank Hugh Patterson for manufacturing the imaging phantom. NSERC, Redlen Technologies and the Canada Research Chairs Program are acknowledge for funding support of this project.
+
 % or
 \appendix{}
-\section{Math ???}
+\section{Mathematical Derivations}
 
-??? Not final ???
+\subsection{V-measure}
 
 To give a metric to describe the disorder in our clustering result we use the Shannon entropy of the classes given the clustering assignment $H(C|K)$ and the entropy of the classes  $H(C)$.
 
@@ -502,6 +520,8 @@ In this study, methods were evaluated according to a combination of both homogen
 v = 2 \cdot \frac{h \cdot c}{h + c}
 \end{equation}
 
+\subsection{ICA}
+
 The components $x_i$ of the images with 5 bins $\boldsymbol{x}=(x_1,\ldots,x_5)^T$ are seen to be a sum of the independent components $s_k$, $k=1,\ldots,5$:
 
 $x_i = a_{i,1} s_1 + \cdots + a_{i,k} s_k + \cdots + a_{i,5} s_5$
@@ -512,7 +532,8 @@ Or in matrix form as $\boldsymbol{x}=\sum_{k=1}^{5} s_k \boldsymbol{a}_k$, where
 
 Putting all this together we have the matrix equation $\boldsymbol{x}=\boldsymbol{A} \boldsymbol{s}$, where $\boldsymbol{s}=(s_1,\ldots,s_5)^T$.
 
-Given our images $\boldsymbol{x}_1,\ldots,\boldsymbol{x}_N$ of the random vector $\boldsymbol{x}$, the task is to estimate both the mixing matrix $\boldsymbol{A}$ and the sources $\boldsymbol{s}$. This is done by adaptively calculating the $\boldsymbol{w}$ vectors and setting up a cost function which maximizes the non-gaussianity of the calculated $s_k = \boldsymbol{w}^T \boldsymbol{x}$. In this paper we use the maximum likelihood estimate (MLE) algorithm for finding the unmixing matrix $W$. 
+Given our images $\boldsymbol{x}_1,\ldots,\boldsymbol{x}_N$ of the random vector $\boldsymbol{x}$, the task is to estimate both the mixing matrix $\boldsymbol{A}$ and the sources $\boldsymbol{s}$. This is done by adaptively calculating the $\boldsymbol{w}$ vectors and setting up a cost function which maximizes the non-gaussianity of the calculated $s_k = \boldsymbol{w}^T \boldsymbol{x}$. In this work 
+the maximum likelihood estimate (MLE) algorithm was used for finding the unmixing matrix $W$. 
 
 
 
