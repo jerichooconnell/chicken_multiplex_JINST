@@ -96,11 +96,13 @@ Planar x-ray images of a rectangular PMMA phantom with five materials (steel, gl
 
 \begin{table}[]
 \begin{tabular}{lllllll}
-                                                       & PMMA & PP    & PVC   & PTFE & Glass & Steel \\
+
+                                                       & PMMA & PP    & PVC   & PTFE & Glass & Steel \\ \hline
 Density {[}g/cm$^3${]}                  & 1.18 & 0.94  & 1.11  & 2.1  & 2.8   & 8.0   \\
 Density relative to PMMA {[}g/cm$^3${]} & -    & -0.24 & -0.07 & 0.92 & 1.62  & 6.82 
 \end{tabular}
 \label{table:densities}
+\caption{Material Densities}
 \end{table}
 
 Data was acquired using a CZT array capable of sorting x-rays into six energy bins with a 8$\times$12 mm imaging array. The 330 $\mu$m pitch high-flux CZT detector is 2mm thick and is able to operate at 250 $\frac{Mcps}{mm^2}$ without any signs of polarization. Travel Heat Method (THM) was adopted when growing the CZT crystals were placed in a sensor that was connected to a photon counting ASIC which operates at rates of up to 62.5 $\frac{Mcps}{channel}$. This ASIC communicated with an external PC though low-voltage differential signalling I/Os via a programmable field-programmable gate array. The energies of photons incident with the detector are sorted into five energy bins by the ASIC. In the case of this experiment the energy bins were set to 16-33 keV, 33-41 keV, 41-50 keV, 50-90 keV, and 90-120 keV.
@@ -180,22 +182,27 @@ PCA decomposes the covariance matrix of the feature space into eigenvalues and e
 Used for blind source seperation in time series analysis, independant component analysis (ICA) separates a mixed signal into its constituent signals. ICA is also used in hyperspectral imaging \cite{Villa2009OnAnalysis}. Using ICA we frame the segmentation of the two images as a decomposition problem in which the image is a weighted addition of two signals. Idealy these signals would be the background material (PMMA) and the material of interest (eg. PVC). A demonstration of using ICA on 
 PVC embedded in PMMA can be seen in Figure \ref{ICA}. A more in depth explanation of ICA can be found in appendix. The algorithm used for ICA in this work was the FastICA \cite{Hyvarinen2000IndependentApplications} algorithm implemented in sci-kit learn.
 
-\begin{wrapfigure}{R}{0.5\textwidth}
-  \begin{center}
-    \includegraphics[width=0.48\textwidth]{figures/ICAnone.png}
-  \end{center}
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{figures/ICAnone.png}
+    \caption{The first two independent components of the PTFE image displayed as a scatter plot.}
   
-  \caption{The first two independent components of the PTFE image displayed as a scatter plot.}
+    \label{ICA}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{figures/NMFnone.png}
+    \caption{The first two non-negative factorization components of the PTFE image displayed as a scatter plot.}
   
-  \label{ICA}  
-  \begin{center}
-    \includegraphics[width=0.48\textwidth]{figures/NMFnone.png}
-  \end{center}
+    \label{NMF}
+    \end{subfigure}
+  \caption{ICA and NMF}
   
-  \caption{The first two non-negative factorization components of the PTFE image displayed as a scatter plot.}
-  
-  \label{NMF}
-\end{wrapfigure}
+  \label{NMF_ICA}
+\end{figure}
+
 
 \subsubsection{Non-negative Matrix Factorization}
 
